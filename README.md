@@ -1,5 +1,6 @@
 # Calcumon
 [![Creative commons by-nc-sa](https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png)](http://creativecommons.org/licenses/by-nc-sa/4.0/)  
+![CALCUMON logo](https://raw.githubusercontent.com/SiniKraft/Calcumon/main/logo.png)
 A simple Pokémon-like game on TI calculators !
 ## Downloads & Install  
 In development. You can try to build it yourself.
