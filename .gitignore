@@ -1,0 +1,7 @@
+bin/
+obj/
+build.bat
+*.lnk
+*.tmx
+*.csv_back
+*.tsx

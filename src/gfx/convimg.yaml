@@ -1,0 +1,104 @@
+palettes:
+  - name: global_palette
+    fixed-entries:
+      - color: {index: 0, r: 255, g: 255, b: 255}
+      - color: {index: 1, r: 255, g: 201, b: 14}
+      - color: {index: 2, r: 154, g: 253, b: 255}
+      - color: {index: 3, r: 0, g: 0, b: 0}
+      - color: {index: 4, r: 174, g: 215, b: 247}
+      - color: {index: 5, r: 48, g: 65, b: 150}
+    images:
+      - balls_tileset.png
+      - sprite.png
+      - tileset.png
+  - name: logo_palette
+    fixed-entries:
+      - color: {index: 0, r: 255, g: 255, b: 255}
+      - color: {index: 1, r: 255, g: 201, b: 14}
+      - color: {index: 2, r: 0, g: 0, b: 0}
+    images:
+      - logo.png
+  - name: tice_palette
+    fixed-entries:
+      - color: {index: 0, r: 255, g: 255, b: 255}
+      - color: {index: 1, r: 255, g: 201, b: 14}
+    images:
+      - TI.png
+      - CE.png
+  - name: pkmn_palette
+    fixed-entries:
+      - color: {index: 0, r: 255, g: 255, b: 255}
+      - color: {index: 1, r: 255, g: 201, b: 14}
+    images:
+      - pokemons_tileset.png
+
+converts:
+  - name: tileset
+    transparent-color-index: 1
+    palette: global_palette
+    tilesets:
+      tile-width: 16
+      tile-height: 16
+      images:
+        - tileset.png
+  - name: balls
+    transparent-color-index: 1
+    palette: global_palette
+    tilesets:
+      tile-width: 18
+      tile-height: 18
+      images:
+        - balls_tileset.png
+  - name: pokemons
+    transparent-color-index: 1
+    palette: pkmn_palette
+    tilesets:
+      tile-width: 56
+      tile-height: 42
+      images:
+        - pokemons_tileset.png
+  - name: sprites
+    transparent-color-index: 1
+    palette: global_palette
+    tilesets:
+      tile-width: 16
+      tile-height: 16
+      images:
+        - sprite.png
+  - name: TI
+    transparent-color-index: 1
+    palette: tice_palette
+    images:
+      - TI.png
+  - name: CE
+    transparent-color-index: 1
+    palette: tice_palette
+    images:
+      - CE.png
+
+  - name: logo
+    transparent-color-index: 1
+    palette: logo_palette
+    tilesets:
+      tile-width: 32
+      tile-height: 32
+      images:
+        - logo.png
+
+
+outputs:
+  - type: c
+    include-file: gfx.h
+    palettes:
+      - global_palette
+      - logo_palette
+      - tice_palette
+      - pkmn_palette
+    converts:
+      - tileset
+      - balls
+      - pokemons
+      - sprites
+      - TI
+      - CE
+      - logo
