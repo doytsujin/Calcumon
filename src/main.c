@@ -8,6 +8,7 @@
 #include "titlescr.h"
 #include "dialog.h"
 #include "save.h"
+#include "tile_properties.h"
 
 extern unsigned char tilemap_map[];
 
@@ -240,7 +241,9 @@ int main(void)
             moved = true;
                 if (y_offset < (TILEMAP_HEIGHT * TILE_HEIGHT) - (TILEMAP_DRAW_HEIGHT * TILE_HEIGHT))
                 {
-                    y_offset += to_walk;
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + 160, y_offset + 130)])) {
+                        y_offset += to_walk;
+                    }
                 }
                 break;
 
@@ -248,8 +251,10 @@ int main(void)
             direction = 2;
             moved = true;
                 if (x_offset)
-                {
-                    x_offset -= to_walk;
+                {   
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + 150, y_offset + 120)])) {
+                        x_offset -= to_walk;
+                    }
                 }
                 break;
 
@@ -258,7 +263,9 @@ int main(void)
             moved = true;
                 if (x_offset < (TILEMAP_WIDTH * TILE_WIDTH) - (TILEMAP_DRAW_WIDTH * TILE_WIDTH))
                 {
-                    x_offset += to_walk;
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + 170, y_offset + 120)])) {
+                        x_offset += to_walk;
+                    }
                 }
                 break;
 
@@ -267,7 +274,9 @@ int main(void)
             moved = true;
                 if (y_offset)
                 {
-                    y_offset -= to_walk;
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + 160, y_offset + 110)])) {
+                        y_offset -= to_walk;
+                    }
                 }
                 break;
 
