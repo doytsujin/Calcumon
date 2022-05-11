@@ -15,8 +15,8 @@ typedef struct {
    unsigned int y_offset;
    uint8_t map_num;
    uint8_t pballs;
-   uint8_t sballs;
-   uint8_t hballs;
+   uint8_t gballs;
+   uint8_t uballs;
    bool mball;
 } SaveData;
 

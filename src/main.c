@@ -29,6 +29,7 @@ int main(void)
 {
     sk_key_t key;
     bool is_male = true;
+    bool instant_exit = false;
     unsigned int x_offset = 0;
     unsigned int y_offset = 0;
     gfx_tilemap_t tilemap;
@@ -63,18 +64,6 @@ int main(void)
     gfx_SetTextFGColor(1);
     gfx_SetTextBGColor(0);
 
-    gfx_sprite_t* sprite_tile_18 = gfx_MallocSprite(16, 16);
-    gfx_sprite_t* sprite_tile_19 = gfx_MallocSprite(16, 16);
-    gfx_sprite_t* sprite_tile_20 = gfx_MallocSprite(16, 16);
-    if (is_male) {
-        gfx_FlipSpriteY(sprite_tile_3, sprite_tile_18);
-        gfx_FlipSpriteY(sprite_tile_4, sprite_tile_19);
-        gfx_FlipSpriteY(sprite_tile_5, sprite_tile_20);
-    } else {
-        gfx_FlipSpriteY(sprite_tile_12, sprite_tile_18);
-        gfx_FlipSpriteY(sprite_tile_13, sprite_tile_19);
-        gfx_FlipSpriteY(sprite_tile_14, sprite_tile_20);
-    }
     kb_Scan();
     SaveData sav;
     if (!(save_exists())) {
@@ -121,20 +110,39 @@ int main(void)
     sav.y_offset = 0;
     sav.map_num = 0;
     sav.pballs = 10;
-    sav.sballs = 0;
-    sav.hballs = 0;
+    sav.gballs = 0;
+    sav.uballs = 0;
     sav.mball = false;
     gfx_FillScreen(0);
     ShowText("Voila, c'est tout ! Bon courage,   et merci d'utiliser CALCUMON :)");
     } else {
         sav = load();
+        if (sav.is_ti != IS_TI) {
+            ShowText("Données de sauvegardes incompatibles avec ce CALCUMON :/");
+            instant_exit = true;
+        }
+    }
+    is_male = sav.is_male;
+
+    gfx_sprite_t* sprite_tile_18 = gfx_MallocSprite(16, 16);
+    gfx_sprite_t* sprite_tile_19 = gfx_MallocSprite(16, 16);
+    gfx_sprite_t* sprite_tile_20 = gfx_MallocSprite(16, 16);
+    if (is_male) {
+        gfx_FlipSpriteY(sprite_tile_3, sprite_tile_18);
+        gfx_FlipSpriteY(sprite_tile_4, sprite_tile_19);
+        gfx_FlipSpriteY(sprite_tile_5, sprite_tile_20);
+    } else {
+        gfx_FlipSpriteY(sprite_tile_12, sprite_tile_18);
+        gfx_FlipSpriteY(sprite_tile_13, sprite_tile_19);
+        gfx_FlipSpriteY(sprite_tile_14, sprite_tile_20);
     }
 
     bool moved = false;
     bool ani = false;
     uint8_t tme = 0;
     uint8_t to_walk = 2;
-    load();
+    x_offset = sav.x_offset;
+    y_offset = sav.y_offset;
 
     do
     {
@@ -275,7 +283,9 @@ int main(void)
             x_offset = 0;
         }  // security
         gfx_SwapDraw();
-    } while (kb_Data[1] != kb_Del && kb_Data[6] != kb_Clear);
+        sav.x_offset = x_offset;
+        sav.y_offset = y_offset;
+    } while (kb_Data[1] != kb_Del && kb_Data[6] != kb_Clear && !(instant_exit));
     gfx_ZeroScreen();
     gfx_BlitBuffer();
 

@@ -60,8 +60,12 @@ uint8_t _ShowText(char* text, uint8_t mode) { // mode 0: just print 1: bool 2: a
         	}
    
         }
-        if (mode == 1 && finished && (kb_Data[7] == kb_Up || kb_Data[7] == kb_Down)) {
-        	selection = !(selection);
+        if (mode == 1 && finished) {
+        	if (kb_Data[7] == kb_Up) {
+        		selection = true;
+        	} else if (kb_Data[7] == kb_Down) {
+        		selection = false;
+        	}
         }
         if (mode == 1 && finished && (kb_Data[2] == kb_Alpha || kb_Data[5] == kb_Chs)) {
         	can_exit = true;

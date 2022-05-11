@@ -15,19 +15,8 @@ bool save_exists() {
 
 void save(SaveData* save) {
 	ti_var_t var;
-	// SaveData save;
-	// strcpy(save.name, "SiniKraft");
-	// save.is_ti = false;
-	// save.is_male = true;
-	// save.x_offset = 0;
-	// save.y_offset = 0;
-	// save.map_num = 0;
-	// save.pballs = 10;
-	// save.sballs = 0;
-	// save.hballs = 1;
-	// save.mball = false;
 	var = ti_Open(SAVE_FILE_NAME, "w");
-	ti_Write(&save, sizeof(save), 1, var);
+	ti_Write(save, sizeof(*save), 1, var);
 	ti_SetArchiveStatus(true, var);
 	ti_Close(var);
 
@@ -40,7 +29,6 @@ SaveData load() {
 		sav_in_var = ti_GetDataPtr(var);
 	}
 	SaveData *save = ((SaveData*)sav_in_var);
-	// ShowText(save->name);
 	SaveData sav = *save;
 	ti_Close(var);
 	return sav;
