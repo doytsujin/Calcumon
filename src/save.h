@@ -20,8 +20,15 @@ typedef struct {
    bool mball;
 } SaveData;
 
+typedef struct {
+   uint8_t tilemap_height;
+   uint8_t tilemap_width;
+   unsigned char tilemap_map[16384];
+} Map;
+
 extern void save(SaveData* save);
 extern SaveData load();
+extern void get_world(Map* _map, uint8_t map_num);
 
 #ifdef __cplusplus
 }

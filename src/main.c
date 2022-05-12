@@ -10,19 +10,13 @@
 #include "save.h"
 #include "tile_properties.h"
 
-extern unsigned char tilemap_map[];
+/*extern unsigned char tilemap_map[];*/
 
 #define TILE_WIDTH          16
 #define TILE_HEIGHT         16
 
-#define TILEMAP_WIDTH       64
-#define TILEMAP_HEIGHT      64
-
 #define TILEMAP_DRAW_WIDTH  21
 #define TILEMAP_DRAW_HEIGHT 16
-
-#define Y_OFFSET            0
-#define X_OFFSET            0
 
 #define IS_TI               1   /*version TI = 1 CE = 0*/
 
@@ -33,22 +27,8 @@ int main(void)
     bool instant_exit = false;
     unsigned int x_offset = 0;
     unsigned int y_offset = 0;
-    gfx_tilemap_t tilemap;
-
-    /* Initialize the tilemap structure */
-    tilemap.map         = tilemap_map;
-    tilemap.tiles       = tileset_tiles;
-    tilemap.type_width  = gfx_tile_16_pixel;
-    tilemap.type_height = gfx_tile_16_pixel;
-    tilemap.tile_height = TILE_HEIGHT;
-    tilemap.tile_width  = TILE_WIDTH;
-    tilemap.draw_height = TILEMAP_DRAW_HEIGHT;
-    tilemap.draw_width  = TILEMAP_DRAW_WIDTH;
-    tilemap.height      = TILEMAP_HEIGHT;
-    tilemap.width       = TILEMAP_WIDTH;
-    tilemap.y_loc       = Y_OFFSET;
-    tilemap.x_loc       = X_OFFSET;
-
+    uint8_t tilemap_height = 64;
+    uint8_t tilemap_width = 64;
     uint8_t direction = 1; /*0 up 1 down 2 left 3 right*/
 
     /* Initialize graphics drawing */
@@ -121,9 +101,37 @@ int main(void)
         if (sav.is_ti != IS_TI) {
             ShowText("Données de sauvegardes incompatibles avec ce CALCUMON :/");
             instant_exit = true;
+            gfx_End();
+            return 0;
         }
     }
     is_male = sav.is_male;
+
+    gfx_tilemap_t tilemap;
+    static Map map;
+    get_world(&map, sav.map_num);
+    if (map.tilemap_height == 0) {
+        gfx_End();
+        os_ClrHome();
+        os_ThrowError(OS_E_UNDEFINED);
+        return 1;
+    }
+    tilemap_height = map.tilemap_height;
+    tilemap_width = map.tilemap_width;
+
+    /* Initialize the tilemap structure */
+    tilemap.map         = map.tilemap_map;
+    tilemap.tiles       = tileset_tiles;
+    tilemap.type_width  = gfx_tile_16_pixel;
+    tilemap.type_height = gfx_tile_16_pixel;
+    tilemap.tile_height = TILE_HEIGHT;
+    tilemap.tile_width  = TILE_WIDTH;
+    tilemap.draw_height = TILEMAP_DRAW_HEIGHT;
+    tilemap.draw_width  = TILEMAP_DRAW_WIDTH;
+    tilemap.height      = tilemap_height;
+    tilemap.width       = tilemap_width;
+    tilemap.y_loc       = 0;
+    tilemap.x_loc       = 0;
 
     gfx_sprite_t* sprite_tile_18 = gfx_MallocSprite(16, 16);
     gfx_sprite_t* sprite_tile_19 = gfx_MallocSprite(16, 16);
@@ -239,7 +247,7 @@ int main(void)
             case kb_Down:
             direction = 1;
             moved = true;
-                if (y_offset < (TILEMAP_HEIGHT * TILE_HEIGHT) - (TILEMAP_DRAW_HEIGHT * TILE_HEIGHT))
+                if (y_offset < (tilemap_height * TILE_HEIGHT) - (TILEMAP_DRAW_HEIGHT * TILE_HEIGHT))
                 {
                     if (!(can_collide[gfx_GetTile(&tilemap, x_offset + 160, y_offset + 130)])) {
                         y_offset += to_walk;
@@ -261,7 +269,7 @@ int main(void)
             case kb_Right:
             direction = 3;
             moved = true;
-                if (x_offset < (TILEMAP_WIDTH * TILE_WIDTH) - (TILEMAP_DRAW_WIDTH * TILE_WIDTH))
+                if (x_offset < (tilemap_width * TILE_WIDTH) - (TILEMAP_DRAW_WIDTH * TILE_WIDTH))
                 {
                     if (!(can_collide[gfx_GetTile(&tilemap, x_offset + 170, y_offset + 120)])) {
                         x_offset += to_walk;
