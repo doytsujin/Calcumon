@@ -18,17 +18,24 @@ typedef struct {
    uint8_t gballs;
    uint8_t uballs;
    bool mball;
+   uint8_t location; // 0 = outside, 1 = Pokémon center, 2 = Market
+   bool free_control_vertical;
+   bool free_control_horizontal;
+   uint24_t x;
+   uint8_t y;
+   bool is_down;
+   bool is_right;
 } SaveData;
 
-typedef struct {
-   uint8_t tilemap_height;
-   uint8_t tilemap_width;
-   unsigned char tilemap_map[16384];
-} Map;
+// typedef struct {
+//    uint8_t tilemap_height;
+//    uint8_t tilemap_width;
+//    unsigned char tilemap_map[9312];
+// } Map;
 
 extern void save(SaveData* save);
 extern SaveData load();
-extern void get_world(Map* _map, uint8_t map_num);
+// extern void get_world(Map* _map, uint8_t map_num);
 
 #ifdef __cplusplus
 }

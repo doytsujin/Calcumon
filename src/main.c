@@ -10,7 +10,7 @@
 #include "save.h"
 #include "tile_properties.h"
 
-/*extern unsigned char tilemap_map[];*/
+extern unsigned char uthon_map[1122];
 
 #define TILE_WIDTH          16
 #define TILE_HEIGHT         16
@@ -19,6 +19,15 @@
 #define TILEMAP_DRAW_HEIGHT 16
 
 #define IS_TI               1   /*version TI = 1 CE = 0*/
+
+const uint8_t tilemaps_height[1] = {
+    34
+};
+
+const uint8_t tilemaps_width[1] = {
+    33
+};
+
 
 int main(void)
 {
@@ -94,6 +103,13 @@ int main(void)
     sav.gballs = 0;
     sav.uballs = 0;
     sav.mball = false;
+    sav.location = 0;
+    sav.free_control_vertical = false;
+    sav.free_control_horizontal = false;
+    sav.x = 152;
+    sav.y = 112;
+    sav.is_down = false;
+    sav.is_right = false;
     gfx_FillScreen(0);
     ShowText("Voila, c'est tout ! Bon courage,   et merci d'utiliser CALCUMON :)");
     } else {
@@ -106,21 +122,30 @@ int main(void)
         }
     }
     is_male = sav.is_male;
+    uint24_t x = sav.x;
+    uint8_t y = sav.y;
+    bool is_down = sav.is_down;
+    bool is_right = sav.is_right;
 
     gfx_tilemap_t tilemap;
-    static Map map;
-    get_world(&map, sav.map_num);
-    if (map.tilemap_height == 0) {
-        gfx_End();
-        os_ClrHome();
-        os_ThrowError(OS_E_UNDEFINED);
-        return 1;
-    }
-    tilemap_height = map.tilemap_height;
-    tilemap_width = map.tilemap_width;
+    // static Map map;
+    // get_world(&map, sav.map_num);
+    // if (map.tilemap_height == 2) {
+    //     gfx_End();
+    //     os_ClrHome();
+    //     os_ThrowError(OS_E_UNDEFINED);
+    //     return 1;
+    // }
+    tilemap_height = tilemaps_height[sav.map_num];
+    tilemap_width = tilemaps_width[sav.map_num];
 
     /* Initialize the tilemap structure */
-    tilemap.map         = map.tilemap_map;
+    if (sav.map_num == 0) {
+        tilemap.map = uthon_map;
+    } else {
+        gfx_End();
+        return 1;
+    }
     tilemap.tiles       = tileset_tiles;
     tilemap.type_width  = gfx_tile_16_pixel;
     tilemap.type_height = gfx_tile_16_pixel;
@@ -136,6 +161,12 @@ int main(void)
     gfx_sprite_t* sprite_tile_18 = gfx_MallocSprite(16, 16);
     gfx_sprite_t* sprite_tile_19 = gfx_MallocSprite(16, 16);
     gfx_sprite_t* sprite_tile_20 = gfx_MallocSprite(16, 16);
+    if (sprite_tile_18 == NULL || sprite_tile_19 == NULL || sprite_tile_20 == NULL) {  // Security Measure to prevent the gfx_FlipSpriteY writnig to NULL and cause calc restart!
+        gfx_End();
+        os_ClrHome();
+        os_ThrowError(OS_E_MEMORY);
+        return 1;
+    }
     if (is_male) {
         gfx_FlipSpriteY(sprite_tile_3, sprite_tile_18);
         gfx_FlipSpriteY(sprite_tile_4, sprite_tile_19);
@@ -152,6 +183,8 @@ int main(void)
     uint8_t to_walk = 2;
     x_offset = sav.x_offset;
     y_offset = sav.y_offset;
+    bool free_control_vertical = sav.free_control_vertical;
+    bool free_control_horizontal = sav.free_control_horizontal;
 
     do
     {
@@ -175,63 +208,63 @@ int main(void)
         if (direction == 0) {
             if (is_male) {
                 if (!(moved)) { // MALE UP
-                    gfx_TransparentSprite_NoClip(sprite_tile_6, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_6, x, y);
                 } else if (ani) {
-                    gfx_TransparentSprite_NoClip(sprite_tile_8, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_8, x, y);
                 } else {
-                    gfx_TransparentSprite_NoClip(sprite_tile_7, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_7, x, y);
                 }
             } else {
                 if (!(moved)) {  // FEMALE UP
-                    gfx_TransparentSprite_NoClip(sprite_tile_15, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_15, x, y);
                 } else if (ani) {
-                    gfx_TransparentSprite_NoClip(sprite_tile_17, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_17, x, y);
                 } else {
-                    gfx_TransparentSprite_NoClip(sprite_tile_16, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_16, x, y);
                 }
             }
         } else if (direction == 1) {
             if (is_male) {
                 if (!(moved)) {  // MALE DOWN
-                    gfx_TransparentSprite_NoClip(sprite_tile_0, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_0, x, y);
                 } else if (ani) {
-                    gfx_TransparentSprite_NoClip(sprite_tile_2, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_2, x, y);
                 } else {
-                    gfx_TransparentSprite_NoClip(sprite_tile_1, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_1, x, y);
                 }
             } else {
                 if (!(moved)) {  // FEMALE DOWN
-                    gfx_TransparentSprite_NoClip(sprite_tile_9, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_9, x, y);
                 } else if (ani) {
-                    gfx_TransparentSprite_NoClip(sprite_tile_11, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_11, x, y);
                 } else {
-                    gfx_TransparentSprite_NoClip(sprite_tile_10, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_10, x, y);
                 }
             }
         } else if (direction == 2) {  // MALE - FEMALE LEFT
             if (!(moved)) {
-                gfx_TransparentSprite_NoClip(sprite_tile_18, 152, 112);
+                gfx_TransparentSprite_NoClip(sprite_tile_18, x, y);
             } else if (ani) {
-                gfx_TransparentSprite_NoClip(sprite_tile_20, 152, 112);
+                gfx_TransparentSprite_NoClip(sprite_tile_20, x, y);
             } else {
-                gfx_TransparentSprite_NoClip(sprite_tile_19, 152, 112);
+                gfx_TransparentSprite_NoClip(sprite_tile_19, x, y);
             }
         } else {
             if (is_male) {
                 if (!(moved)) {  // MALE RIGHT
-                    gfx_TransparentSprite_NoClip(sprite_tile_3, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_3, x, y);
                 } else if (ani) {
-                    gfx_TransparentSprite_NoClip(sprite_tile_5, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_5, x, y);
                 } else {
-                    gfx_TransparentSprite_NoClip(sprite_tile_4, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_4, x, y);
                 }
             } else {
                 if (!(moved)) {  // FEMALE RIGHT
-                    gfx_TransparentSprite_NoClip(sprite_tile_12, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_12, x, y);
                 } else if (ani) {
-                    gfx_TransparentSprite_NoClip(sprite_tile_14, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_14, x, y);
                 } else {
-                    gfx_TransparentSprite_NoClip(sprite_tile_13, 152, 112);
+                    gfx_TransparentSprite_NoClip(sprite_tile_13, x, y);
                 }
             }
         }
@@ -245,46 +278,110 @@ int main(void)
         switch (key)
         {
             case kb_Down:
-            direction = 1;
-            moved = true;
-                if (y_offset < (tilemap_height * TILE_HEIGHT) - (TILEMAP_DRAW_HEIGHT * TILE_HEIGHT))
+                direction = 1;
+                moved = true;
+                if (free_control_vertical) {
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 18)])) {
+                        y += to_walk;
+                    }
+                    if (y >= 112 && !(is_down)) {
+                        y = 112;
+                        free_control_vertical = false;
+                    }
+                }
+                else if (y_offset < (tilemap_height * TILE_HEIGHT) - (TILEMAP_DRAW_HEIGHT * TILE_HEIGHT))
                 {
-                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + 160, y_offset + 130)])) {
-                        y_offset += to_walk;
+                    free_control_vertical = false;
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 18)])) {
+                        y_offset += to_walk; 
+                    }
+                } else {
+                    free_control_vertical = true;
+                    is_down = true;
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 18)])) {
+                        y += to_walk;
                     }
                 }
                 break;
 
             case kb_Left:
-            direction = 2;
-            moved = true;
-                if (x_offset)
+                direction = 2;
+                moved = true;
+                if (free_control_horizontal) {
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x - 2, y_offset + y + 8)])) {
+                        x -= to_walk;
+                    }
+                    if (x <= 152 && is_right) {
+                        x = 152;
+                        free_control_horizontal = false;
+                        is_right = false;
+                    }
+                }
+                else if (x_offset)  // = (x_offset == 0)
                 {   
-                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + 150, y_offset + 120)])) {
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x - 2, y_offset + y + 8)])) { // x_offset + 150 
                         x_offset -= to_walk;
+                    }
+                } else {
+                    free_control_horizontal = true;
+                    is_right = false;
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x - 2, y_offset + y + 8)])) {
+                        x -= to_walk;
                     }
                 }
                 break;
 
             case kb_Right:
-            direction = 3;
-            moved = true;
-                if (x_offset < (tilemap_width * TILE_WIDTH) - (TILEMAP_DRAW_WIDTH * TILE_WIDTH))
+                direction = 3;
+                moved = true;
+                if (free_control_horizontal) {
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x + 18, y_offset + y + 8)])) {
+                        x += to_walk;
+                    }
+                    if (x >= 152 && !(is_right)) {
+                        x = 152;
+                        free_control_horizontal = false;
+                    }
+                }
+                else if (x_offset < (tilemap_width * TILE_WIDTH) - (TILEMAP_DRAW_WIDTH * TILE_WIDTH))
                 {
-                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + 170, y_offset + 120)])) {
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x + 18, y_offset + y + 8)])) {
                         x_offset += to_walk;
+                    }
+                } else {
+                    free_control_horizontal = true;
+                    is_right = true;
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x + 18, y_offset + y + 8)])) {
+                        x += to_walk;
                     }
                 }
                 break;
 
             case kb_Up:
-            direction = 0;
-            moved = true;
-                if (y_offset)
+                direction = 0;
+                moved = true;
+                if (free_control_vertical) {
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x, y_offset + y - 2)])) {
+                        y -= to_walk;
+                    }
+                    if (y <= 112 && is_down) {
+                        y = 112;
+                        free_control_vertical = false;
+                        is_down = false;
+                    }
+                }
+                else if (y_offset) // = (y_offset == 0)
                 {
-                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + 160, y_offset + 110)])) {
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y - 2)])) {
                         y_offset -= to_walk;
                     }
+                } else {
+                    free_control_vertical = true;
+                    is_down = false;
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y - 2)])) {
+                        y -= to_walk;
+                    }
+
                 }
                 break;
 
@@ -293,20 +390,48 @@ int main(void)
 
             
         }
-        if (y_offset > 15000000) {
+
+        if (y_offset > 16777200) {
             y_offset = 0;
         }
-        if (x_offset > 15000000) {
+        if (x_offset > 16777200) {
             x_offset = 0;
         }  // security
+        if (free_control_horizontal || free_control_vertical) {
+            if (x > 304) {
+                x -= to_walk;
+            }
+            if (x < 0) {
+                x += to_walk;
+            }
+            if (y > 222) { // 234
+                y -= to_walk;
+            }
+            if (y < 0) {
+                y += to_walk;
+            }
+            if (y > 240 && y <= 255) {
+                y = 0;
+            }
+        }
         gfx_SwapDraw();
-        sav.x_offset = x_offset;
-        sav.y_offset = y_offset;
+        
     } while (kb_Data[1] != kb_Del && kb_Data[6] != kb_Clear && !(instant_exit));
+    sav.free_control_vertical = free_control_vertical;
+    sav.free_control_horizontal = free_control_horizontal;
+    sav.x_offset = x_offset;
+    sav.y_offset = y_offset;
+    sav.x = x;
+    sav.y = y;
+    sav.is_down = is_down;
+    sav.is_right = is_right;
     gfx_ZeroScreen();
     gfx_BlitBuffer();
 
     save(&sav);
+    free(sprite_tile_18);
+    free(sprite_tile_19);
+    free(sprite_tile_20);
     gfx_End();
 
     return 0;

@@ -5,3 +5,6 @@ build.bat
 *.tmx
 *.csv_back
 *.tsx
+.vs/
+*.ignore
+*.bat

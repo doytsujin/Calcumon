@@ -36,20 +36,20 @@ SaveData load() {
 
 }
 
-void get_world(Map* _map, uint8_t map_num) {
-	char* file_name = "ClcMonM";
-	char str;
-	real_t tmp_real = os_FloatToReal((float)map_num);
-    os_RealToStr(&str, &tmp_real, 6, 1, 0);
-	strncat(file_name, &str, 1);
-	ti_var_t var;
-	Map **map_in_var = NULL;
-	if ((var = ti_Open(file_name, "r"))) {
-		map_in_var = ti_GetDataPtr(var);
-		_map = ((Map*)map_in_var);
-	} else {
-		_map->tilemap_height = 0;  // check in main.c to cancel
-	}
-	ti_Close(var);
-}
+// void get_world(Map* _map, uint8_t map_num) {
+// 	char* file_name = "ClcMonM";
+// 	char str;
+// 	real_t tmp_real = os_FloatToReal((float)map_num);
+// 	os_RealToStr(&str, &tmp_real, 6, 1, 0);
+// 	strncat(file_name, &str, 1);
+// 	ti_var_t var;
+// 	Map **map_in_var = NULL;
+// 	if ((var = ti_Open(file_name, "r"))) {
+// 		map_in_var = ti_GetDataPtr(var);
+// 		_map = ((Map*)map_in_var);
+// 	} else {
+// 		_map->tilemap_height = 2;  // check in main.c to cancel
+// 	}
+// 	ti_Close(var);
+// }
 
