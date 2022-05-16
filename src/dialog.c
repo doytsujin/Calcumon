@@ -1,8 +1,9 @@
 #include <tice.h>
 #include <graphx.h>
 #include <keypadc.h>
+#include <string.h>
 
-uint8_t _ShowText(char* text, uint8_t mode) { // mode 0: just print 1: bool 2: ask for num
+uint8_t _ShowText(const char* text, const uint8_t mode, const uint8_t max) { // mode 0: just print 1: bool 2: ask for num
 	bool can_exit;
 	bool finished;
 	finished = false; /*Override previous values in case of recall*/
@@ -21,6 +22,7 @@ uint8_t _ShowText(char* text, uint8_t mode) { // mode 0: just print 1: bool 2: a
 	uint8_t current_char;
 	current_char = 0;
 	bool selection = true;
+	uint8_t num_selection = 0;
 	do {
 		
 		if (!(finished)) {
@@ -48,6 +50,17 @@ uint8_t _ShowText(char* text, uint8_t mode) { // mode 0: just print 1: bool 2: a
         		gfx_PrintStringXY("Oui", 270, 128);
         		gfx_PrintStringXY("Non", 270, 141);
         		gfx_BlitBuffer();
+        	} else if (mode == 2) {
+        		gfx_SetColor(5);
+        		gfx_FillRectangle_NoClip(252, 122, 58, 34);
+        		gfx_SetColor(4);
+        		gfx_FillRectangle_NoClip(255, 125, 52, 28);
+        		gfx_SetColor(5);
+        		gfx_FillTriangle_NoClip(277, 144, 282, 150, 286, 144);
+        		gfx_FillTriangle_NoClip(277, 132, 282, 126, 286, 132);
+        		gfx_SetTextXY(271, 135);
+        		gfx_PrintUInt(num_selection, 3);
+        		gfx_BlitBuffer();
         	}
         } else {
         	if (current_char > 34 && !(jumped)) {
@@ -65,6 +78,24 @@ uint8_t _ShowText(char* text, uint8_t mode) { // mode 0: just print 1: bool 2: a
         		selection = true;
         	} else if (kb_Data[7] == kb_Down) {
         		selection = false;
+        	}
+        }
+        if (mode == 2 && finished) {
+        	if (kb_Data[7] == kb_Up) {
+        		if (!(num_selection == max)) {
+        			num_selection++;
+        			if (num_selection == 0) {
+        				num_selection = 255;
+        			}
+        			delay(10);
+        		}
+ 
+        	} else if (kb_Data[7] == kb_Down) {
+        		num_selection = num_selection - 1;
+        		if (num_selection == 255) {
+        			num_selection = 0;
+        			delay(10);
+        		}
         	}
         }
         if (mode == 1 && finished && (kb_Data[2] == kb_Alpha || kb_Data[5] == kb_Chs)) {
@@ -87,14 +118,94 @@ uint8_t _ShowText(char* text, uint8_t mode) { // mode 0: just print 1: bool 2: a
 	return return_val;
 }
 
-void ShowText(char* text) {
-	_ShowText(text, 0);
+char* AskText() {
+	static char inpt[10] = "";
+	uint8_t cc = 0;
+	uint8_t sel = 0;
+	char to_add;
+	kb_key_t key;
+	gfx_SetColor(5);
+	gfx_FillRectangle_NoClip(23, 23, 274, 107);
+	gfx_SetColor(4);
+	gfx_FillRectangle_NoClip(26, 26, 268, 101);
+	gfx_SetTextBGColor(0);
+	gfx_SetTextFGColor(3);
+	gfx_PrintStringXY("Entrez votre nom :", 48, 6);
+	gfx_PrintStringXY(" Appuyez sur ALPHA ou (-) pour valider.", 0, 224);
+	gfx_BlitBuffer();
+	delay(100);
+	kb_Scan();
+	while (kb_Data[5] != kb_Chs && kb_Data[2] != kb_Alpha && kb_Data[6] != kb_Clear) {
+		gfx_SetTextXY(32, 32);
+		kb_Scan();
+		key = kb_Data[7];
+		if (key == kb_Up) {
+			sel -= 16;
+			if (sel > 95) {
+				sel += 16;
+			}
+		}
+		if (key == kb_Down) {
+			sel += 16;
+			if (sel > 95) {
+				sel -= 16;
+			}
+		}
+		if (key == kb_Right && !((sel + 1) % 16 == 0)) {
+			if (!(sel == 95)) {
+				sel += 1;
+			}
+		}
+		if (key == kb_Left && !(sel % 16 == 0)) {
+			if (!(sel ==0)) {
+				sel -= 1;
+			}
+		}
+		if (kb_Data[6] == kb_Enter || kb_Data[1] == kb_2nd) {
+			if (strlen(inpt) < 9) {
+				to_add = (char)sel+32;
+				strcpy(&to_add, &to_add);
+				strncat(inpt, &to_add, 1);
+			}
+		}
+		if (kb_Data[1] == kb_Del || kb_Data[6] == kb_Clear) {
+			char* _tmptt = "\0";
+			inpt[0] = *_tmptt;
+		}
+		while (cc != 96) {
+			if (sel == cc) {
+				gfx_SetTextBGColor(1);
+			}
+			gfx_PrintChar((char)cc + 32);
+			gfx_SetTextBGColor(4);
+			if (!(gfx_GetTextX() == 280)) {
+				gfx_PrintChar(*" ");
+			}
+			if (gfx_GetTextX() == 280) {
+				gfx_SetTextXY(32, gfx_GetTextY() + 16);
+			}
+			cc++;
+		}
+
+		gfx_SetTextBGColor(0);
+
+		gfx_PrintStringXY(inpt, 40, 200);
+		gfx_SetTextBGColor(4);
+		gfx_BlitBuffer();
+		cc = 0;
+		delay(75);
+	}
+	return inpt;
 }
 
-bool AskBoolText(char* text) {
-	return ((bool)_ShowText(text, 1));
+void ShowText(const char* text) {
+	_ShowText(text, 0, 0);
 }
 
-uint8_t AskNumText(char* text) {
-	return _ShowText(text, 2);
+bool AskBoolText(const char* text) {
+	return ((bool)_ShowText(text, 1, 0));
+}
+
+uint8_t AskNumText(const char* text, const uint8_t _max) {
+	return _ShowText(text, 2, _max);
 }

@@ -8,23 +8,24 @@ extern "C" {
 extern bool save_exists();
 
 typedef struct {
-   bool is_ti;
-   char name[10];
-   bool is_male;
-   unsigned int x_offset;
+   bool is_ti;  // Is TI or CE game
+   char name[10];  // 9 char max name
+   bool is_male;  // male or female
+   unsigned int x_offset;  // tilemap x and y pos
    unsigned int y_offset;
-   uint8_t map_num;
-   uint8_t pballs;
-   uint8_t gballs;
-   uint8_t uballs;
-   bool mball;
-   uint8_t location; // 0 = outside, 1 = Pokémon center, 2 = Market
-   bool free_control_vertical;
+   uint8_t map_num;  // map index
+   uint8_t pballs;  // Poké Balls owned
+   uint8_t gballs;  // Great Balls owned
+   uint8_t uballs;  // Ultra Balls owned
+   bool mball;  // has a masterball ? (max 1)
+   uint8_t location; // 0 = Outside, 1 = Pokémon center, 2 = Market
+   bool free_control_vertical;  // is the player not in center of screen ? (when near to borders of the tilemap)
    bool free_control_horizontal;
-   uint24_t x;
-   uint8_t y;
-   bool is_down;
-   bool is_right;
+   uint24_t x;  // x on screen location
+   uint8_t y;  // y on screen location
+   bool is_down;  // If free_control, is in down side or up ?
+   bool is_right;  // If free_control, is in right side or left ?
+   uint8_t nlen;  // Name Length
 } SaveData;
 
 // typedef struct {

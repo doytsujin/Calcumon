@@ -5,9 +5,10 @@
 extern "C" {
 #endif
 
-extern void ShowText(char* text);
-extern bool AskBoolText(char* text);
-extern uint8_t AskNumText(char* text);
+extern void ShowText(const char* text);
+extern bool AskBoolText(const char* text);
+extern uint8_t AskNumText(const char* text, const uint8_t _max);
+extern char* AskText();
 
 #ifdef __cplusplus
 }

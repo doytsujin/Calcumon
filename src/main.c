@@ -65,25 +65,28 @@ int main(void)
     ShowText("Les sauvegardes de TI ne sont pas  lisibles par CE et inversement.");
     ShowText("Mais, comment t'appelles-tu ???");
     bool finask = false;
-    char inputBuffer[10/*= size*/] = "Unnamed";
+    char* inputBuffer;
     kb_Scan();
     if (!(kb_Data[6] == kb_Clear)) {
         while (!(finask)) {
-            gfx_End(); // ASK FOR NAME
-            os_ClrHome();
-            os_GetStringInput("Votre nom : ", inputBuffer, 10/*= size*/);
-            os_ClrHome();
-            gfx_Begin(); // RESUMING
-            gfx_SetPalette(global_palette, sizeof_global_palette, 0);
-            gfx_SetColor(0);
-            gfx_SetTextFGColor(1);
-            gfx_SetTextBGColor(0);
-            gfx_SetDrawBuffer();
-            gfx_SetMonospaceFont(8);
-            kb_Scan();
-            if (kb_Data[6] == kb_Clear) {
-                break;
-            }
+            // gfx_End(); // ASK FOR NAME
+            // os_ClrHome();
+            // os_GetStringInput("Votre nom : ", inputBuffer, 10/*= size*/);
+            // os_ClrHome();
+            // gfx_Begin(); // RESUMING
+            // gfx_SetPalette(global_palette, sizeof_global_palette, 0);
+            // gfx_SetColor(0);
+            // gfx_SetTextFGColor(1);
+            // gfx_SetTextBGColor(0);
+            // gfx_SetDrawBuffer();
+            // gfx_SetMonospaceFont(8);
+            // kb_Scan();
+            // if (kb_Data[6] == kb_Clear) {
+            //     break;
+            // }
+            gfx_ZeroScreen();
+            inputBuffer = AskText();
+            gfx_ZeroScreen();
             ShowText(inputBuffer);
             if (AskBoolText("C'est bien ton nom ???")) {
                 finask = true;
@@ -91,6 +94,7 @@ int main(void)
         }
     }
     strcpy(sav.name, inputBuffer);
+    sav.nlen = strlen(sav.name);
     bool _tmp_sk = false;
     gfx_FillScreen(0);
     _tmp_sk = AskBoolText("Au fait ... Est-tu un garcon ?");
@@ -110,7 +114,12 @@ int main(void)
     sav.y = 112;
     sav.is_down = false;
     sav.is_right = false;
-    gfx_FillScreen(0);
+    gfx_ZeroScreen();
+    ShowText("Voici 10 Poke Balls.");
+    ShowText("Tu dois maitenant choisir ton Pokemon de depart. Lequel veux-tu ???");
+    uint8_t choosed;
+    choosed = AskNumText("0: Bulbizarre  1: Salameche        2: Carapuce ", 2);
+    gfx_ZeroScreen();
     ShowText("Voila, c'est tout ! Bon courage,   et merci d'utiliser CALCUMON :)");
     } else {
         sav = load();
@@ -361,7 +370,7 @@ int main(void)
                 direction = 0;
                 moved = true;
                 if (free_control_vertical) {
-                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x, y_offset + y - 2)])) {
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 4)])) {
                         y -= to_walk;
                     }
                     if (y <= 112 && is_down) {
@@ -372,13 +381,13 @@ int main(void)
                 }
                 else if (y_offset) // = (y_offset == 0)
                 {
-                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y - 2)])) {
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 4)])) {
                         y_offset -= to_walk;
                     }
                 } else {
                     free_control_vertical = true;
                     is_down = false;
-                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y - 2)])) {
+                    if (!(can_collide[gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 4)])) {
                         y -= to_walk;
                     }
 
