@@ -10,7 +10,8 @@
 #include "save.h"
 #include "tile_properties.h"
 
-extern unsigned char uthon_map[1122];
+extern unsigned char uthon_map[];
+extern unsigned char pc_map[];
 
 #define TILE_WIDTH          16
 #define TILE_HEIGHT         16
@@ -28,6 +29,27 @@ const uint8_t tilemaps_width[1] = {
     33
 };
 
+uint8_t tilemap_height;
+uint8_t tilemap_width;
+
+void change_tilemap(uint8_t map_num2, uint8_t loc, gfx_tilemap_t* tilemp) {
+    if (loc == 0) {
+        if (map_num2 == 0) {
+            tilemp->map = uthon_map;
+        } else {
+            gfx_End();
+        }
+        
+        tilemap_height = tilemaps_height[map_num2];
+        tilemap_width = tilemaps_width[map_num2];
+    } else if (loc == 1) {
+        tilemap_height = 16;
+        tilemap_width = 21;
+        tilemp->map = pc_map;
+    }
+            
+}
+
 
 int main(void)
 {
@@ -36,8 +58,8 @@ int main(void)
     bool instant_exit = false;
     unsigned int x_offset = 0;
     unsigned int y_offset = 0;
-    uint8_t tilemap_height = 64;
-    uint8_t tilemap_width = 64;
+    // uint8_t tilemap_height = 64;
+    // uint8_t tilemap_width = 64;
     uint8_t direction = 1; /*0 up 1 down 2 left 3 right*/
 
     /* Initialize graphics drawing */
@@ -145,16 +167,11 @@ int main(void)
     //     os_ThrowError(OS_E_UNDEFINED);
     //     return 1;
     // }
-    tilemap_height = tilemaps_height[sav.map_num];
-    tilemap_width = tilemaps_width[sav.map_num];
 
     /* Initialize the tilemap structure */
-    if (sav.map_num == 0) {
-        tilemap.map = uthon_map;
-    } else {
-        gfx_End();
-        return 1;
-    }
+
+    change_tilemap(sav.map_num, sav.location, &tilemap);
+    
     tilemap.tiles       = tileset_tiles;
     tilemap.type_width  = gfx_tile_16_pixel;
     tilemap.type_height = gfx_tile_16_pixel;
@@ -194,10 +211,32 @@ int main(void)
     y_offset = sav.y_offset;
     bool free_control_vertical = sav.free_control_vertical;
     bool free_control_horizontal = sav.free_control_horizontal;
+    bool is_healing = false;
+    bool computer_on = false;
 
     do
     {
         kb_Scan();
+
+        if (kb_Data[6] == kb_Enter || kb_Data[1] == kb_2nd) {
+            if (direction == 0 /*up*/) {
+                if (gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 4) == 61) {
+                    sav.location = 1;
+                    x_offset = 0;
+                    y_offset = 0;
+                    change_tilemap(sav.map_num, sav.location, &tilemap);
+                } else if (gfx_GetTile(&tilemap, x + 8, y + 8) == 167) {
+                    computer_on = !(computer_on);
+                    if (computer_on) {
+                        gfx_SetTileMapped(&tilemap, 13, 4, 172);
+                    } else {
+                        gfx_SetTileMapped(&tilemap, 13, 4, 151);
+                    }
+                    delay(500);
+                }
+            }
+        }
+        
 
         if (moved) {
             tme++;
@@ -213,6 +252,16 @@ int main(void)
         key = kb_Data[7];
         
         gfx_Tilemap(&tilemap, x_offset, y_offset);
+
+        if (sav.location == 1) {
+            if (is_healing) {
+                gfx_TransparentSprite_NoClip(tileset_tile_178, 160, 74);
+                gfx_TransparentSprite_NoClip(tileset_tile_194, 160, 90);
+            } else {
+                gfx_TransparentSprite_NoClip(tileset_tile_177, 160, 74);
+                gfx_TransparentSprite_NoClip(tileset_tile_193, 160, 90);
+            }
+        }
         
         if (direction == 0) {
             if (is_male) {

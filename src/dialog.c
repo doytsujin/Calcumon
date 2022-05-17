@@ -131,6 +131,7 @@ char* AskText() {
 	gfx_SetTextBGColor(0);
 	gfx_SetTextFGColor(3);
 	gfx_PrintStringXY("Entrez votre nom :", 48, 6);
+	gfx_PrintStringXY("    SUPPR pour reecrire du debut.", 0, 214);
 	gfx_PrintStringXY(" Appuyez sur ALPHA ou (-) pour valider.", 0, 224);
 	gfx_BlitBuffer();
 	delay(100);
@@ -189,7 +190,7 @@ char* AskText() {
 
 		gfx_SetTextBGColor(0);
 
-		gfx_PrintStringXY(inpt, 40, 200);
+		gfx_PrintStringXY(inpt, 40, 180);
 		gfx_SetTextBGColor(4);
 		gfx_BlitBuffer();
 		cc = 0;
