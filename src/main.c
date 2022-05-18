@@ -33,7 +33,10 @@ const uint8_t tilemaps_width[1] = {
 uint8_t tilemap_height;
 uint8_t tilemap_width;
 
-void change_tilemap(uint8_t map_num2, uint8_t loc, gfx_tilemap_t* tilemp) {
+void change_tilemap(uint8_t map_num2, uint8_t loc, gfx_tilemap_t* tilemp, bool transition) {
+    if (transition) {
+        Transition();
+    }
     if (loc == 0) {
         if (map_num2 == 0) {
             tilemp->map = uthon_map;
@@ -197,7 +200,7 @@ int main(void)
 
     /* Initialize the tilemap structure */
 
-    change_tilemap(sav.map_num, sav.location, &tilemap);
+    change_tilemap(sav.map_num, sav.location, &tilemap, false);
 
     gfx_sprite_t* sprite_tile_18 = gfx_MallocSprite(16, 16);
     gfx_sprite_t* sprite_tile_19 = gfx_MallocSprite(16, 16);
@@ -246,8 +249,7 @@ int main(void)
                     y = 171;
                     free_control_vertical = true;
                     free_control_horizontal = true;
-                    Transition();
-                    change_tilemap(sav.map_num, sav.location, &tilemap);
+                    change_tilemap(sav.map_num, sav.location, &tilemap, true);
                 } else if (gfx_GetTile(&tilemap, x + 8, y + 8) == 167) {  // COMPUTER
                     computer_on = !(computer_on);
                     if (computer_on) {
@@ -285,8 +287,7 @@ int main(void)
                     }
                     free_control_horizontal = false;
                     free_control_vertical = false;
-                    Transition();
-                    change_tilemap(sav.map_num, sav.location, &tilemap);
+                    change_tilemap(sav.map_num, sav.location, &tilemap, true);
                 }
             }
         }
