@@ -26,6 +26,7 @@ typedef struct {
    bool is_down;  // If free_control, is in down side or up ?
    bool is_right;  // If free_control, is in right side or left ?
    uint8_t nlen;  // Name Length
+   uint8_t direction;
 } SaveData;
 
 // typedef struct {

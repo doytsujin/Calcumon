@@ -23,6 +23,16 @@ uint8_t _ShowText(const char* text, const uint8_t mode, const uint8_t max) { // 
 	current_char = 0;
 	bool selection = true;
 	uint8_t num_selection = 0;
+	gfx_sprite_t* behind_box;
+	if (mode != 0) {
+		behind_box = gfx_MallocSprite(58, 34);
+		if (behind_box == NULL) {
+			gfx_End();
+			os_ClrHome();
+        	os_ThrowError(OS_E_MEMORY);
+		}
+		gfx_GetSprite_NoClip(behind_box, 252, 122);
+	}
 	do {
 		
 		if (!(finished)) {
@@ -113,6 +123,16 @@ uint8_t _ShowText(const char* text, const uint8_t mode, const uint8_t max) { // 
 	uint8_t return_val = 0;
 	if (mode == 1) {
 		return_val = ((uint8_t)selection);
+	}
+	if (mode == 2) {
+		return_val = (num_selection);
+	}
+	if (mode != 0) {
+		gfx_Sprite_NoClip(behind_box, 252, 122);
+		free(behind_box);
+	} else {
+		gfx_SetColor(4);
+		gfx_FillRectangle_NoClip(292, 214, 10, 6);
 	}
 
 	return return_val;

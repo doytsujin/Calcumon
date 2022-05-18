@@ -9,6 +9,7 @@
 #include "dialog.h"
 #include "save.h"
 #include "tile_properties.h"
+#include "transition.h"
 
 extern unsigned char uthon_map[];
 extern unsigned char pc_map[];
@@ -47,7 +48,31 @@ void change_tilemap(uint8_t map_num2, uint8_t loc, gfx_tilemap_t* tilemp) {
         tilemap_width = 21;
         tilemp->map = pc_map;
     }
+    tilemp->tiles       = tileset_tiles;
+    tilemp->type_width  = gfx_tile_16_pixel;
+    tilemp->type_height = gfx_tile_16_pixel;
+    tilemp->tile_height = TILE_HEIGHT;
+    tilemp->tile_width  = TILE_WIDTH;
+    tilemp->draw_height = TILEMAP_DRAW_HEIGHT;
+    tilemp->draw_width  = TILEMAP_DRAW_WIDTH;
+    tilemp->height      = tilemap_height;
+    tilemp->width       = tilemap_width;
+    tilemp->y_loc       = 0;
+    tilemp->x_loc       = 0;
             
+}
+
+void redraw_center(bool is_heal) {
+    gfx_Sprite_NoClip(tileset_tile_146, 160, 64);
+    gfx_Sprite_NoClip(tileset_tile_149, 160, 80);
+    if (is_heal) {
+        gfx_TransparentSprite_NoClip(tileset_tile_178, 160, 74);
+        gfx_TransparentSprite_NoClip(tileset_tile_194, 160, 90);
+    } else {
+        gfx_TransparentSprite_NoClip(tileset_tile_177, 160, 74);
+        gfx_TransparentSprite_NoClip(tileset_tile_193, 160, 90);
+    }
+    gfx_BlitBuffer();
 }
 
 
@@ -136,6 +161,7 @@ int main(void)
     sav.y = 112;
     sav.is_down = false;
     sav.is_right = false;
+    sav.direction = 1;
     gfx_ZeroScreen();
     ShowText("Voici 10 Poke Balls.");
     ShowText("Tu dois maitenant choisir ton Pokemon de depart. Lequel veux-tu ???");
@@ -157,6 +183,7 @@ int main(void)
     uint8_t y = sav.y;
     bool is_down = sav.is_down;
     bool is_right = sav.is_right;
+    direction = sav.direction;
 
     gfx_tilemap_t tilemap;
     // static Map map;
@@ -171,18 +198,6 @@ int main(void)
     /* Initialize the tilemap structure */
 
     change_tilemap(sav.map_num, sav.location, &tilemap);
-    
-    tilemap.tiles       = tileset_tiles;
-    tilemap.type_width  = gfx_tile_16_pixel;
-    tilemap.type_height = gfx_tile_16_pixel;
-    tilemap.tile_height = TILE_HEIGHT;
-    tilemap.tile_width  = TILE_WIDTH;
-    tilemap.draw_height = TILEMAP_DRAW_HEIGHT;
-    tilemap.draw_width  = TILEMAP_DRAW_WIDTH;
-    tilemap.height      = tilemap_height;
-    tilemap.width       = tilemap_width;
-    tilemap.y_loc       = 0;
-    tilemap.x_loc       = 0;
 
     gfx_sprite_t* sprite_tile_18 = gfx_MallocSprite(16, 16);
     gfx_sprite_t* sprite_tile_19 = gfx_MallocSprite(16, 16);
@@ -213,6 +228,9 @@ int main(void)
     bool free_control_horizontal = sav.free_control_horizontal;
     bool is_healing = false;
     bool computer_on = false;
+    char tmp_str_nn[21] = "Bonjour, ";
+    strncat(tmp_str_nn, sav.name, 9);
+    strncat(tmp_str_nn, " !", 2);
 
     do
     {
@@ -220,19 +238,55 @@ int main(void)
 
         if (kb_Data[6] == kb_Enter || kb_Data[1] == kb_2nd) {
             if (direction == 0 /*up*/) {
-                if (gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 4) == 61) {
+                if (gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 4) == 61) {  // POKEMON CENTER DOOR
                     sav.location = 1;
                     x_offset = 0;
                     y_offset = 0;
+                    x = 152;
+                    y = 171;
+                    free_control_vertical = true;
+                    free_control_horizontal = true;
+                    Transition();
                     change_tilemap(sav.map_num, sav.location, &tilemap);
-                } else if (gfx_GetTile(&tilemap, x + 8, y + 8) == 167) {
+                } else if (gfx_GetTile(&tilemap, x + 8, y + 8) == 167) {  // COMPUTER
                     computer_on = !(computer_on);
                     if (computer_on) {
-                        gfx_SetTileMapped(&tilemap, 13, 4, 172);
+                        ShowText("Le PC est hors-service !");
+                        computer_on = false;
+                        // gfx_SetTileMapped(&tilemap, 13, 4, 172);
                     } else {
                         gfx_SetTileMapped(&tilemap, 13, 4, 151);
                     }
-                    delay(500);
+                    gfx_SwapDraw();
+                    delay(200);
+                } else if (gfx_GetTile(&tilemap, x + 8, y + 4) == 165) {  // POKEMON CENTER HEALER DESK
+                    ShowText(tmp_str_nn);
+                    if (AskBoolText("Voulez-vous soigner votre equipe ?")) {
+                        redraw_center(is_healing);
+                        ShowText("Tres bien ! Laissez-moi un instant ...");
+                        is_healing = true;
+                        redraw_center(is_healing);
+                        delay(3000);
+                        is_healing = false;
+                        redraw_center(is_healing);
+                        ShowText("C'est fait ! A bientot !");
+                    }
+                    delay(200);
+                    kb_Scan();
+                }
+            } else if (direction == 1/*down*/) {
+                if (gfx_GetTile(&tilemap, x + 8, y + 8) == 138 || gfx_GetTile(&tilemap, x + 8, y + 8) == 139) {  // POKEMON CENTER INDOORS
+                    sav.location = 0;
+                    x = 152;
+                    y = 112;
+                    if (sav.map_num == 0) {
+                        x_offset = 168;
+                        y_offset = 112;
+                    }
+                    free_control_horizontal = false;
+                    free_control_vertical = false;
+                    Transition();
+                    change_tilemap(sav.map_num, sav.location, &tilemap);
                 }
             }
         }
@@ -483,6 +537,7 @@ int main(void)
     sav.y = y;
     sav.is_down = is_down;
     sav.is_right = is_right;
+    sav.direction = direction;
     gfx_ZeroScreen();
     gfx_BlitBuffer();
 
