@@ -23,6 +23,10 @@ extern "C" {
 #include "CE.h"
 #define logo_palette_offset 0
 #include "logo.h"
+#define boy_trainer_palette_offset 0
+#include "boy_trainer.h"
+#define girl_trainer_palette_offset 0
+#include "girl_trainer.h"
 
 #ifdef __cplusplus
 }

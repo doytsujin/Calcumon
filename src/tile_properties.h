@@ -209,7 +209,7 @@ bool can_collide[256] = { // false = you can pass through the tile.
    false,
    false,
    false,
-   false,
+   true,
    true,
    true,
    false,

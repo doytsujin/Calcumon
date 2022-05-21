@@ -4,7 +4,7 @@
 void Transition() {
 	gfx_SetColor(3);
 	// while (radius > 0) {
-	// 	for (uint8_t i = 0; i < 50; i++) {
+	// 	for (uint8_t i = 0; i < 2; i++) {
 	// 		if (radius <= 160) {
 	// 			gfx_Circle_NoClip(160, 120, radius);
 	// 			gfx_Circle_NoClip(159, 119, radius);

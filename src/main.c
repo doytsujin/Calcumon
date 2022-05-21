@@ -10,9 +10,11 @@
 #include "save.h"
 #include "tile_properties.h"
 #include "transition.h"
+#include "menu.h"
 
 extern unsigned char uthon_map[];
 extern unsigned char pc_map[];
+extern unsigned char markt_map[];
 
 #define TILE_WIDTH          16
 #define TILE_HEIGHT         16
@@ -50,6 +52,10 @@ void change_tilemap(uint8_t map_num2, uint8_t loc, gfx_tilemap_t* tilemp, bool t
         tilemap_height = 16;
         tilemap_width = 21;
         tilemp->map = pc_map;
+    } else if (loc == 2) {
+        tilemap_height = 16;
+        tilemap_width = 21;
+        tilemp->map = markt_map;
     }
     tilemp->tiles       = tileset_tiles;
     tilemp->type_width  = gfx_tile_16_pixel;
@@ -165,6 +171,17 @@ int main(void)
     sav.is_down = false;
     sav.is_right = false;
     sav.direction = 1;
+    sav.money = 0;
+    for (uint8_t __i = 0; __i < 19; __i++) {
+        sav.found_mons[__i].b1 = false;
+        sav.found_mons[__i].b2 = false;
+        sav.found_mons[__i].b3 = false;
+        sav.found_mons[__i].b4 = false;
+        sav.found_mons[__i].b5 = false;
+        sav.found_mons[__i].b6 = false;
+        sav.found_mons[__i].b7 = false;
+        sav.found_mons[__i].b8 = false;
+    }
     gfx_ZeroScreen();
     ShowText("Voici 10 Poke Balls.");
     ShowText("Tu dois maitenant choisir ton Pokemon de depart. Lequel veux-tu ???");
@@ -275,6 +292,18 @@ int main(void)
                     }
                     delay(200);
                     kb_Scan();
+                } else if (gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 4) == 57) {  // HOUSE DOOR
+                    ShowText("La porte est ferme ...");
+                    delay(200);
+                } else if (gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 4) == 121) {  // MARKET CENTER DOOR
+                    sav.location = 2;
+                    x_offset = 0;
+                    y_offset = 0;
+                    x = 120;
+                    y = 166;
+                    free_control_vertical = true;
+                    free_control_horizontal = true;
+                    change_tilemap(sav.map_num, sav.location, &tilemap, true);
                 }
             } else if (direction == 1/*down*/) {
                 if (gfx_GetTile(&tilemap, x + 8, y + 8) == 138 || gfx_GetTile(&tilemap, x + 8, y + 8) == 139) {  // POKEMON CENTER INDOORS
@@ -284,6 +313,17 @@ int main(void)
                     if (sav.map_num == 0) {
                         x_offset = 168;
                         y_offset = 112;
+                    }
+                    free_control_horizontal = false;
+                    free_control_vertical = false;
+                    change_tilemap(sav.map_num, sav.location, &tilemap, true);
+                } else if (gfx_GetTile(&tilemap, x + 8, y + 8) == 181 || gfx_GetTile(&tilemap, x + 8, y + 8) == 182) {  // MARKET INDOORS
+                    sav.location = 0;
+                    x = 152;
+                    y = 112;
+                    if (sav.map_num == 0) {
+                        x_offset = 8;
+                        y_offset = 268;
                     }
                     free_control_horizontal = false;
                     free_control_vertical = false;
@@ -510,6 +550,11 @@ int main(void)
         if (x_offset > 16777200) {
             x_offset = 0;
         }  // security
+        if (sav.location == 2) {
+            if (y > 166) {
+                y -= to_walk;
+            }
+        }
         if (free_control_horizontal || free_control_vertical) {
             if (x > 304) {
                 x -= to_walk;

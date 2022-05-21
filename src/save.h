@@ -8,6 +8,17 @@ extern "C" {
 extern bool save_exists();
 
 typedef struct {
+   bool b1:1;
+   bool b2:1;
+   bool b3:1;
+   bool b4:1;
+   bool b5:1;
+   bool b6:1;
+   bool b7:1;
+   bool b8:1;
+} BitBools;
+
+typedef struct {
    bool is_ti;  // Is TI or CE game
    char name[10];  // 9 char max name
    bool is_male;  // male or female
@@ -27,6 +38,8 @@ typedef struct {
    bool is_right;  // If free_control, is in right side or left ?
    uint8_t nlen;  // Name Length
    uint8_t direction;
+   uint16_t money; // max = 65535
+   BitBools found_mons[19];
 } SaveData;
 
 // typedef struct {

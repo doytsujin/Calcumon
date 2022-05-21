@@ -9,6 +9,7 @@ extern void ShowText(const char* text);
 extern bool AskBoolText(const char* text);
 extern uint8_t AskNumText(const char* text, const uint8_t _max);
 extern char* AskText();
+extern void InstantPrintHugeText(const char* text, const uint24_t x, const uint8_t y);
 
 #ifdef __cplusplus
 }

@@ -230,3 +230,24 @@ bool AskBoolText(const char* text) {
 uint8_t AskNumText(const char* text, const uint8_t _max) {
 	return _ShowText(text, 2, _max);
 }
+
+void InstantPrintHugeText(const char* text, const uint24_t x, const uint8_t y) {
+	uint8_t length = 0;
+	for (length = 0; text[length] != '\0'; ++length);
+	gfx_sprite_t* char_img;
+	gfx_sprite_t* ori_char;
+	char_img = gfx_MallocSprite(16, 16);
+	if (char_img == NULL) {
+		gfx_End();
+		os_ClrHome();
+		os_ThrowError(OS_E_MEMORY);
+	} else {
+		for (uint8_t index = 0; index < length; index++) {
+			ori_char = gfx_GetSpriteChar(text[index]);
+			gfx_ScaleSprite(ori_char, char_img);
+			gfx_Sprite(char_img, x + (index * 16), y);
+		}
+	}
+	free(ori_char);
+	free(char_img);
+}
