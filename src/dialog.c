@@ -232,6 +232,7 @@ uint8_t AskNumText(const char* text, const uint8_t _max) {
 }
 
 void InstantPrintHugeText(const char* text, const uint24_t x, const uint8_t y) {
+	gfx_SetTextBGColor(1);
 	uint8_t length = 0;
 	for (length = 0; text[length] != '\0'; ++length);
 	gfx_sprite_t* char_img;
@@ -245,7 +246,7 @@ void InstantPrintHugeText(const char* text, const uint24_t x, const uint8_t y) {
 		for (uint8_t index = 0; index < length; index++) {
 			ori_char = gfx_GetSpriteChar(text[index]);
 			gfx_ScaleSprite(ori_char, char_img);
-			gfx_Sprite(char_img, x + (index * 16), y);
+			gfx_TransparentSprite_NoClip(char_img, x + (index * 16), y);
 		}
 	}
 	free(ori_char);

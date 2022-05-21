@@ -256,6 +256,11 @@ int main(void)
     {
         kb_Scan();
 
+        if (kb_Data[3] == kb_GraphVar) {
+            ShowMainMenu(&sav);
+            delay(200);
+        }
+
         if (kb_Data[6] == kb_Enter || kb_Data[1] == kb_2nd) {
             if (direction == 0 /*up*/) {
                 if (gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 4) == 61) {  // POKEMON CENTER DOOR
@@ -349,13 +354,8 @@ int main(void)
         gfx_Tilemap(&tilemap, x_offset, y_offset);
 
         if (sav.location == 1) {
-            if (is_healing) {
-                gfx_TransparentSprite_NoClip(tileset_tile_178, 160, 74);
-                gfx_TransparentSprite_NoClip(tileset_tile_194, 160, 90);
-            } else {
-                gfx_TransparentSprite_NoClip(tileset_tile_177, 160, 74);
-                gfx_TransparentSprite_NoClip(tileset_tile_193, 160, 90);
-            }
+            gfx_TransparentSprite_NoClip(tileset_tile_177, 160, 74);
+            gfx_TransparentSprite_NoClip(tileset_tile_193, 160, 90);
         }
         
         if (direction == 0) {
