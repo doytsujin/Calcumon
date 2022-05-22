@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-extern void ShowMainMenu(SaveData* _save);
+extern bool ShowMainMenu(SaveData* _save);
 
 #ifdef __cplusplus
 }

@@ -257,7 +257,7 @@ int main(void)
         kb_Scan();
 
         if (kb_Data[3] == kb_GraphVar) {
-            ShowMainMenu(&sav);
+            instant_exit = ShowMainMenu(&sav);
             delay(200);
         }
 
@@ -586,8 +586,9 @@ int main(void)
     sav.direction = direction;
     gfx_ZeroScreen();
     gfx_BlitBuffer();
-
-    save(&sav);
+    if (!(instant_exit)) {
+        save(&sav);
+    }
     free(sprite_tile_18);
     free(sprite_tile_19);
     free(sprite_tile_20);

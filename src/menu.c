@@ -12,7 +12,7 @@ void UpColor(uint8_t* color) {
 	*color += 1;
 }
 
-void ShowMainMenu(SaveData* _save) {
+bool ShowMainMenu(SaveData* _save) {
 	gfx_SetTextFGColor(3);
 	gfx_SetTextBGColor(4);
 	gfx_SetColor(5);
@@ -96,11 +96,118 @@ void ShowMainMenu(SaveData* _save) {
 	InstantPrintHugeText("C.DEX", 183, 77);
 	InstantPrintHugeText("SAUVE.", 181, 119);
 	InstantPrintHugeText("QUITT.", 181, 160);
+	uint8_t selec = 0;
+	uint8_t prev_selec = 1;
+	uint8_t _delay = 0;
+	uint8_t tmp_selec = 0;
+	uint8_t tmp_prev_selec = 0;
+	uint8_t selx = 41;
+	bool back = false;
+	bool back2 = false;
+	bool exit = false;
+	gfx_sprite_t* behind_dialog = gfx_MallocSprite(255, 60);
+	gfx_sprite_t* behind_dialog_2 = gfx_MallocSprite(45, 60);
 
 	delay(200);
 	kb_Scan();
 	do {
+		_delay = 200;
 		kb_Scan();
+		if (kb_Data[6] == kb_Enter || kb_Data[1] == kb_2nd) {
+			switch (selec) {
+				case 0:  // TEAM
+					break;
+				case 1:  // BAG
+					break;
+				case 2:  // COMMS
+					break;
+				case 3:  // CALCUDEX
+					break;
+				case 4:  // SAVE
+					save(_save);
+					if (behind_dialog != NULL) {
+						gfx_GetSprite(behind_dialog, 10, 170);
+					}
+					if (behind_dialog_2 != NULL) {
+						gfx_GetSprite(behind_dialog_2, 265, 170);
+					}
+					ShowText("Partie Sauvegardee !");
+					if (behind_dialog != NULL && behind_dialog_2 != NULL) {
+						gfx_Sprite_NoClip(behind_dialog, 10, 170);
+						gfx_Sprite_NoClip(behind_dialog_2, 265, 170);
+					}
+					gfx_BlitBuffer();
+					delay(200);
+
+					break;
+				case 5:  // EXIT
+					exit = true;
+				default:
+					break;
+			}
+		}
+		if (kb_Data[7] == kb_Down) {
+			if (selec != 2 && selec != 5) {
+				prev_selec = selec;
+				selec++;
+				back = false;
+				back2 = false;
+			}
+		} else if (kb_Data[7] == kb_Up) {
+			if (selec != 0 && selec != 3) {
+				prev_selec = selec;
+				selec -= 1;
+				back = false;
+				back2 = false;
+			}
+		} else if (kb_Data[7] == kb_Right) {
+			if (selec < 3) {
+				prev_selec = selec;
+				selec += 3;
+				back = true;
+				back2 = false;
+			}
+		} else if (kb_Data[7] == kb_Left) {
+			if (selec > 2) {
+				prev_selec = selec;
+				selec -= 3;
+				back = false;
+				back2 = true;
+			}
+		}
+		 else {
+			_delay = 0;
+		}
+		if (selec < 3) {
+			tmp_selec = selec;
+			tmp_prev_selec = prev_selec;
+			selx = 41;
+		} else {
+			tmp_selec = selec - 3;
+			tmp_prev_selec = prev_selec - 3;
+			selx = 166;
+		}
+		gfx_SetColor(0);
+		gfx_Rectangle_NoClip(selx, 67 + (41*tmp_selec), 111, 35);
+		gfx_Rectangle_NoClip(selx + 1, 68 + (41*tmp_selec), 109, 33);
+		gfx_SetColor(4);
+		if (back) {
+			selx = 41;
+			tmp_prev_selec += 3;
+		} else if (back2) {
+			selx = 166;
+			tmp_prev_selec -= 3;
+		}
+		gfx_Rectangle_NoClip(selx, 67 + (41*tmp_prev_selec), 111, 35);
+		gfx_Rectangle_NoClip(selx + 1, 68 + (41*tmp_prev_selec), 109, 33);
 		gfx_BlitBuffer();
-	} while (kb_Data[3] != kb_GraphVar && kb_Data[6] != kb_Clear && kb_Data[2] != kb_Alpha);
+		delay(_delay);
+	} while (kb_Data[3] != kb_GraphVar && kb_Data[6] != kb_Clear && kb_Data[2] != kb_Alpha && !(exit));
+	if (behind_dialog != NULL) {
+		free(behind_dialog);
+	}
+	if (behind_dialog_2 != NULL) {
+		free(behind_dialog_2);
+	}
+	return exit;
 }

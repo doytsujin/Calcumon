@@ -236,9 +236,9 @@ void InstantPrintHugeText(const char* text, const uint24_t x, const uint8_t y) {
 	uint8_t length = 0;
 	for (length = 0; text[length] != '\0'; ++length);
 	gfx_sprite_t* char_img;
-	gfx_sprite_t* ori_char;
 	char_img = gfx_MallocSprite(16, 16);
-	if (char_img == NULL) {
+	gfx_TempSprite(ori_char, 8, 8);
+	if (char_img == NULL || ori_char == NULL) {
 		gfx_End();
 		os_ClrHome();
 		os_ThrowError(OS_E_MEMORY);
@@ -249,6 +249,6 @@ void InstantPrintHugeText(const char* text, const uint24_t x, const uint8_t y) {
 			gfx_TransparentSprite_NoClip(char_img, x + (index * 16), y);
 		}
 	}
-	free(ori_char);
+	// free(ori_char); CAUSE MEMEORY ERROR
 	free(char_img);
 }
