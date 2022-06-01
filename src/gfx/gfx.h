@@ -13,6 +13,8 @@ extern "C" {
 #include "tileset.h"
 #define balls_palette_offset 0
 #include "balls_tileset.h"
+#define pots_palette_offset 0
+#include "pots_tileset.h"
 #define pokemons_palette_offset 0
 #include "pokemons_tileset.h"
 #define sprites_palette_offset 0

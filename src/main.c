@@ -190,7 +190,13 @@ int main(void)
     gfx_ZeroScreen();
     ShowText("Voila, c'est tout ! Bon courage,   et merci d'utiliser CALCUMON :)");
     } else {
-        sav = load();
+        load(&sav);
+        if (sav.map_num == 255) {
+            gfx_End();
+            os_ClrHome();
+            os_ThrowError(OS_E_INVALID);
+            return 0;
+        }
         if (sav.is_ti != IS_TI) {
             ShowText("Données de sauvegardes incompatibles avec ce CALCUMON :/");
             instant_exit = true;
@@ -257,7 +263,7 @@ int main(void)
         kb_Scan();
 
         if (kb_Data[3] == kb_GraphVar) {
-            instant_exit = ShowMainMenu(&sav);
+            instant_exit = ShowMainMenu(&sav, &tilemap, &x_offset, &y_offset, 0, 1);
             delay(200);
         }
 
@@ -575,20 +581,20 @@ int main(void)
         gfx_SwapDraw();
         
     } while (kb_Data[1] != kb_Del && kb_Data[6] != kb_Clear && !(instant_exit));
-    sav.free_control_vertical = free_control_vertical;
-    sav.free_control_horizontal = free_control_horizontal;
-    sav.x_offset = x_offset;
-    sav.y_offset = y_offset;
-    sav.x = x;
-    sav.y = y;
-    sav.is_down = is_down;
-    sav.is_right = is_right;
-    sav.direction = direction;
-    gfx_ZeroScreen();
-    gfx_BlitBuffer();
     if (!(instant_exit)) {
+        sav.free_control_vertical = free_control_vertical;
+        sav.free_control_horizontal = free_control_horizontal;
+        sav.x_offset = x_offset;
+        sav.y_offset = y_offset;
+        sav.x = x;
+        sav.y = y;
+        sav.is_down = is_down;
+        sav.is_right = is_right;
+        sav.direction = direction;
         save(&sav);
     }
+    gfx_ZeroScreen();
+    gfx_BlitBuffer();
     free(sprite_tile_18);
     free(sprite_tile_19);
     free(sprite_tile_20);

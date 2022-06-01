@@ -16,23 +16,24 @@ bool save_exists() {
 
 void save(SaveData* save) {
 	ti_var_t var;
-	var = ti_Open(SAVE_FILE_NAME, "w");
-	ti_Write(save, sizeof(*save), 1, var);
-	ti_SetArchiveStatus(true, var);
-	ti_Close(var);
+	if ((var = ti_Open(SAVE_FILE_NAME, "w"))) {
+		ti_Write(save, sizeof(*save), 1, var);
+		ti_SetArchiveStatus(true, var);
+		ti_Close(var);
+	}
 
 }
 
-SaveData load() {
+void load(SaveData* data) {
 	ti_var_t var;
-	SaveData **sav_in_var = NULL;
+	// SaveData **sav_in_var = NULL;
 	if ((var = ti_Open(SAVE_FILE_NAME, "r"))) {
-		sav_in_var = ti_GetDataPtr(var);
+		// sav_in_var = ti_GetDataPtr(var);
+		if (!(ti_Read(data, sizeof(SaveData), 1, var) == 1)) {
+			data->map_num = 255;
+		}
+		ti_Close(var);
 	}
-	SaveData *save = ((SaveData*)sav_in_var);
-	SaveData sav = *save;
-	ti_Close(var);
-	return sav;
 
 }
 

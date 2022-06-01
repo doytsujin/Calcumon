@@ -4,6 +4,7 @@
 #include <save.h>
 
 #include "dialog.h"
+#include "bag.h"
 
 #include "gfx/gfx.h"
 
@@ -12,7 +13,8 @@ void UpColor(uint8_t* color) {
 	*color += 1;
 }
 
-bool ShowMainMenu(SaveData* _save) {
+bool ShowMainMenu(SaveData* _save, gfx_tilemap_t* tilmap, unsigned int* _x, unsigned int* _y, uint8_t selec, uint8_t prev_selec) {
+	gfx_Tilemap(tilmap, *_x, *_y);
 	gfx_SetTextFGColor(3);
 	gfx_SetTextBGColor(4);
 	gfx_SetColor(5);
@@ -96,8 +98,6 @@ bool ShowMainMenu(SaveData* _save) {
 	InstantPrintHugeText("C.DEX", 183, 77);
 	InstantPrintHugeText("SAUVE.", 181, 119);
 	InstantPrintHugeText("QUITT.", 181, 160);
-	uint8_t selec = 0;
-	uint8_t prev_selec = 1;
 	uint8_t _delay = 0;
 	uint8_t tmp_selec = 0;
 	uint8_t tmp_prev_selec = 0;
@@ -105,8 +105,6 @@ bool ShowMainMenu(SaveData* _save) {
 	bool back = false;
 	bool back2 = false;
 	bool exit = false;
-	gfx_sprite_t* behind_dialog = gfx_MallocSprite(255, 60);
-	gfx_sprite_t* behind_dialog_2 = gfx_MallocSprite(45, 60);
 
 	delay(200);
 	kb_Scan();
@@ -118,6 +116,8 @@ bool ShowMainMenu(SaveData* _save) {
 				case 0:  // TEAM
 					break;
 				case 1:  // BAG
+					ShowBag(_save);
+					ShowMainMenu(_save, tilmap, _x, _y, selec, prev_selec);
 					break;
 				case 2:  // COMMS
 					break;
@@ -125,23 +125,13 @@ bool ShowMainMenu(SaveData* _save) {
 					break;
 				case 4:  // SAVE
 					save(_save);
-					if (behind_dialog != NULL) {
-						gfx_GetSprite(behind_dialog, 10, 170);
-					}
-					if (behind_dialog_2 != NULL) {
-						gfx_GetSprite(behind_dialog_2, 265, 170);
-					}
 					ShowText("Partie Sauvegardee !");
-					if (behind_dialog != NULL && behind_dialog_2 != NULL) {
-						gfx_Sprite_NoClip(behind_dialog, 10, 170);
-						gfx_Sprite_NoClip(behind_dialog_2, 265, 170);
-					}
-					gfx_BlitBuffer();
 					delay(200);
-
+					ShowMainMenu(_save, tilmap, _x, _y, selec, prev_selec);
 					break;
 				case 5:  // EXIT
 					exit = true;
+					break;
 				default:
 					break;
 			}
@@ -203,11 +193,5 @@ bool ShowMainMenu(SaveData* _save) {
 		gfx_BlitBuffer();
 		delay(_delay);
 	} while (kb_Data[3] != kb_GraphVar && kb_Data[6] != kb_Clear && kb_Data[2] != kb_Alpha && !(exit));
-	if (behind_dialog != NULL) {
-		free(behind_dialog);
-	}
-	if (behind_dialog_2 != NULL) {
-		free(behind_dialog_2);
-	}
 	return exit;
 }

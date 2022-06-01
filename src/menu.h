@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-extern bool ShowMainMenu(SaveData* _save);
+extern bool ShowMainMenu(SaveData* _save, gfx_tilemap_t* tilmap, unsigned int* _x, unsigned int* _y, uint8_t selec, uint8_t prev_selec);
 
 #ifdef __cplusplus
 }

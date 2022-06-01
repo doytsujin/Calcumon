@@ -49,7 +49,7 @@ typedef struct {
 // } Map;
 
 extern void save(SaveData* save);
-extern SaveData load();
+extern void load(SaveData* data);
 // extern void get_world(Map* _map, uint8_t map_num);
 
 #ifdef __cplusplus
