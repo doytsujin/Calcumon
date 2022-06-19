@@ -13,7 +13,7 @@ void UpColor(uint8_t* color) {
 	*color += 1;
 }
 
-bool ShowMainMenu(SaveData* _save, gfx_tilemap_t* tilmap, unsigned int* _x, unsigned int* _y, uint8_t selec, uint8_t prev_selec) {
+bool ShowMainMenu(SaveData* _save, gfx_tilemap_t* tilmap, unsigned int* _x, unsigned int* _y, uint8_t selec, uint8_t prev_selec, bool back, bool back2) {
 	gfx_Tilemap(tilmap, *_x, *_y);
 	gfx_SetTextFGColor(3);
 	gfx_SetTextBGColor(4);
@@ -22,7 +22,7 @@ bool ShowMainMenu(SaveData* _save, gfx_tilemap_t* tilmap, unsigned int* _x, unsi
 	gfx_SetColor(4);
 	gfx_FillRectangle_NoClip(35, 35, 249, 169);
 	gfx_SetTextXY(44, 42);
-	gfx_PrintUInt(_save->money, 5);
+	gfx_PrintUInt(_save->money * 100, 7);
 	gfx_PrintString(" $");
 	gfx_SetTextXY(224, 44);
 	if (_save->is_ti) {
@@ -102,9 +102,8 @@ bool ShowMainMenu(SaveData* _save, gfx_tilemap_t* tilmap, unsigned int* _x, unsi
 	uint8_t tmp_selec = 0;
 	uint8_t tmp_prev_selec = 0;
 	uint8_t selx = 41;
-	bool back = false;
-	bool back2 = false;
 	bool exit = false;
+	bool quit = false;
 
 	delay(200);
 	kb_Scan();
@@ -117,7 +116,8 @@ bool ShowMainMenu(SaveData* _save, gfx_tilemap_t* tilmap, unsigned int* _x, unsi
 					break;
 				case 1:  // BAG
 					ShowBag(_save);
-					ShowMainMenu(_save, tilmap, _x, _y, selec, prev_selec);
+					exit = ShowMainMenu(_save, tilmap, _x, _y, selec, prev_selec, back, back2);
+					quit = true;
 					break;
 				case 2:  // COMMS
 					break;
@@ -127,7 +127,8 @@ bool ShowMainMenu(SaveData* _save, gfx_tilemap_t* tilmap, unsigned int* _x, unsi
 					save(_save);
 					ShowText("Partie Sauvegardee !");
 					delay(200);
-					ShowMainMenu(_save, tilmap, _x, _y, selec, prev_selec);
+					exit = ShowMainMenu(_save, tilmap, _x, _y, selec, prev_selec, back, back2);
+					quit = true;
 					break;
 				case 5:  // EXIT
 					exit = true;
@@ -190,8 +191,10 @@ bool ShowMainMenu(SaveData* _save, gfx_tilemap_t* tilmap, unsigned int* _x, unsi
 		}
 		gfx_Rectangle_NoClip(selx, 67 + (41*tmp_prev_selec), 111, 35);
 		gfx_Rectangle_NoClip(selx + 1, 68 + (41*tmp_prev_selec), 109, 33);
-		gfx_BlitBuffer();
-		delay(_delay);
-	} while (kb_Data[3] != kb_GraphVar && kb_Data[6] != kb_Clear && kb_Data[2] != kb_Alpha && !(exit));
+		if (!(exit)&& !(quit)) {
+			gfx_BlitBuffer();
+			delay(_delay);
+		}
+	} while (kb_Data[3] != kb_GraphVar && kb_Data[6] != kb_Clear && kb_Data[2] != kb_Alpha && kb_Data[5] != kb_Chs && !(exit) && !(quit));
 	return exit;
 }

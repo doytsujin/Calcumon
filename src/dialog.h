@@ -7,7 +7,7 @@ extern "C" {
 
 extern void ShowText(const char* text);
 extern bool AskBoolText(const char* text);
-extern uint8_t AskNumText(const char* text, const uint8_t _max);
+extern uint8_t AskNumText(const char* text, const uint8_t _max, const uint8_t _delay);
 extern char* AskText();
 extern void InstantPrintHugeText(const char* text, const uint24_t x, const uint8_t y);
 

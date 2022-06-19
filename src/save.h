@@ -29,6 +29,10 @@ typedef struct {
    uint8_t gballs;  // Great Balls owned
    uint8_t uballs;  // Ultra Balls owned
    bool mball;  // has a masterball ? (max 1)
+   uint8_t pots;
+   uint8_t spots;
+   uint8_t hpots;
+   uint8_t mpots;
    uint8_t location; // 0 = Outside, 1 = Pokémon center, 2 = Market
    bool free_control_vertical;  // is the player not in center of screen ? (when near to borders of the tilemap)
    bool free_control_horizontal;
@@ -39,7 +43,7 @@ typedef struct {
    uint8_t nlen;  // Name Length
    uint8_t direction;
    uint16_t money; // max = 65535
-   BitBools found_mons[19];
+   BitBools found_mons[19];  // Store if the player catch the 150 mons. (max 152)
 } SaveData;
 
 // typedef struct {

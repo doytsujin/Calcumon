@@ -32,6 +32,16 @@ const uint8_t tilemaps_width[1] = {
     33
 };
 
+const uint8_t prices[7] = {
+    2,  // pots
+    6,  // spots
+    12,  // hpots
+    24,  // mpots
+    2,  // pballs
+    6,  // gballs
+    8  // uballs
+};
+
 uint8_t tilemap_height;
 uint8_t tilemap_width;
 
@@ -162,6 +172,10 @@ int main(void)
     sav.pballs = 10;
     sav.gballs = 0;
     sav.uballs = 0;
+    sav.pots = 0;
+    sav.spots = 0;
+    sav.hpots = 0;
+    sav.mpots = 0;
     sav.mball = false;
     sav.location = 0;
     sav.free_control_vertical = false;
@@ -171,7 +185,7 @@ int main(void)
     sav.is_down = false;
     sav.is_right = false;
     sav.direction = 1;
-    sav.money = 0;
+    sav.money = 30;
     for (uint8_t __i = 0; __i < 19; __i++) {
         sav.found_mons[__i].b1 = false;
         sav.found_mons[__i].b2 = false;
@@ -184,10 +198,14 @@ int main(void)
     }
     gfx_ZeroScreen();
     ShowText("Voici 10 Poke Balls.");
+    ShowText("Et, cadeau : 3000 $");
+    ShowText("Attention: Il n'y a pas de rappels !");
+    ShowText("Pour reanimer, utilise une potion, qui couvre tout les PV max !");
     ShowText("Tu dois maitenant choisir ton Pokemon de depart. Lequel veux-tu ???");
     uint8_t choosed;
-    choosed = AskNumText("0: Bulbizarre  1: Salameche        2: Carapuce ", 2);
+    choosed = AskNumText("0: Bulbizarre  1: Salameche        2: Carapuce ", 2, 125);
     gfx_ZeroScreen();
+    ShowText("C'etait le professeur Ken,         J'espere qu'on se reverra !");
     ShowText("Voila, c'est tout ! Bon courage,   et merci d'utiliser CALCUMON :)");
     } else {
         load(&sav);
@@ -254,6 +272,17 @@ int main(void)
     bool free_control_horizontal = sav.free_control_horizontal;
     bool is_healing = false;
     bool computer_on = false;
+    uint8_t markt_sel = 0;  // pots or balls or annul ?
+    uint8_t markt_type = 0;  // super hyper max ?
+    uint8_t markt_qte = 0;  // how many ?
+    uint8_t markt_prevqte = 0;  // how many I already have ?
+    uint16_t markt_price = 0;  // self-explanatory
+    uint8_t markt_mode = 0;  // 2 = seller mode 1 buy 0 cancel
+    uint8_t markt_id = 0;  // id of the item to be bought
+    uint8_t tmp_inv[7];  // store the tmp inventory
+    real_t tmp_real;
+    real_t real_prevqte;
+    real_t real_qte;
     char tmp_str_nn[21] = "Bonjour, ";
     strncat(tmp_str_nn, sav.name, 9);
     strncat(tmp_str_nn, " !", 2);
@@ -263,7 +292,7 @@ int main(void)
         kb_Scan();
 
         if (kb_Data[3] == kb_GraphVar) {
-            instant_exit = ShowMainMenu(&sav, &tilemap, &x_offset, &y_offset, 0, 1);
+            instant_exit = ShowMainMenu(&sav, &tilemap, &x_offset, &y_offset, 0, 1, false, false);
             delay(200);
         }
 
@@ -277,6 +306,7 @@ int main(void)
                     y = 171;
                     free_control_vertical = true;
                     free_control_horizontal = true;
+                    is_down = true;
                     change_tilemap(sav.map_num, sav.location, &tilemap, true);
                 } else if (gfx_GetTile(&tilemap, x + 8, y + 8) == 167) {  // COMPUTER
                     computer_on = !(computer_on);
@@ -314,6 +344,7 @@ int main(void)
                     y = 166;
                     free_control_vertical = true;
                     free_control_horizontal = true;
+                    is_down = true;
                     change_tilemap(sav.map_num, sav.location, &tilemap, true);
                 }
             } else if (direction == 1/*down*/) {
@@ -339,6 +370,122 @@ int main(void)
                     free_control_horizontal = false;
                     free_control_vertical = false;
                     change_tilemap(sav.map_num, sav.location, &tilemap, true);
+                }
+            } else if (direction == 2/*left*/) {
+                if (gfx_GetTile(&tilemap, x - 4, y + 8) == 180) {  // MARKET SELLER
+                    ShowText("Bienvenue dans la boutique !");
+                    markt_mode = 0;
+                    if (AskBoolText("Tu veux acheter des objets ?")) {
+                        markt_mode = 1;
+                    } else if (AskBoolText("Tu veux vendre des objets ?")) {
+                        markt_mode = 2;
+                    }
+                    if (markt_mode != 0) {
+                        tmp_inv[0] = sav.pots;
+                        tmp_inv[1] = sav.spots;
+                        tmp_inv[2] = sav.hpots;
+                        tmp_inv[3] = sav.mpots;
+                        tmp_inv[4] = sav.pballs;
+                        tmp_inv[5] = sav.gballs;
+                        tmp_inv[6] = sav.uballs;
+                            
+                        markt_sel = AskNumText("0: annul 1: potions 2: balls", 2, 100);
+                        if (markt_sel != 0) {
+                            if (markt_sel == 1) {
+                                markt_type = AskNumText("1: Potion 2: Super 3: Hyper 4: Max", 4, 100);
+                            } else {
+                                markt_type = AskNumText("1: Poke 2: Super 3: Hyper", 3, 100);
+                            }
+                            if (markt_type != 0) {
+                                markt_id = markt_sel == 1 ? markt_type - 1 : markt_type + 3;
+                                markt_prevqte = tmp_inv[markt_id];  // How many the player already have ??
+
+                                char ask_string[48] = "";
+                                char price_str[6] = "";
+                                char prevqte_str[6] = "";
+                                char qte_str[6] = "";
+                                char finprice_str[7] = "";
+                                char bag_qte[8] = "";
+                                char final_ask[52] = "";
+
+                                tmp_real = os_FloatToReal((float)(prices[markt_id] * 100.0f));
+                                os_RealToStr(price_str, &tmp_real, 6, 1, -1);
+                                real_prevqte = os_FloatToReal((float)markt_prevqte);
+                                os_RealToStr(prevqte_str, &real_prevqte, 6, 1, -1);
+
+                                strncat(ask_string, "Combien ?            Prix: ", 28);
+                                strncat(ask_string, price_str, prices[markt_id] > 9 ? 4 : 3);
+                                strncat(ask_string, " $   Sac: ", 11);
+                                strncat(ask_string, prevqte_str, 4);
+
+                                markt_qte = AskNumText(ask_string, markt_mode == 1 ? (255 - markt_prevqte) : markt_prevqte, 40);
+                                markt_price = markt_qte * (prices[markt_id]);
+
+                                real_qte = os_FloatToReal((float)markt_qte);
+                                os_RealToStr(qte_str, &real_qte, 6, 1, -1);
+                                real_t real_price = os_FloatToReal((float)markt_price);
+                                os_RealToStr(finprice_str, &real_price, 6, 1, -1);
+                                real_t real_bagqte = os_FloatToReal((float)sav.money);
+                                os_RealToStr(bag_qte, &real_bagqte, 6, 1, -1);
+
+                                strncat(final_ask, qte_str, 3);
+                                strncat(final_ask, " ? Ca fera ", 11);
+                                strncat(final_ask, finprice_str, 6);
+                                strncat(final_ask, "00", 2);
+                                strncat(final_ask, " $", 2);
+                                while (strlen(final_ask) !=35) {
+                                    strncat(final_ask, " ", 1);
+                                }
+                                strncat(final_ask, "Sac: ", 5);
+                                strncat(final_ask, bag_qte, 5);
+                                strncat(final_ask, "00 $", 4);
+
+
+                                if (AskBoolText(final_ask)) {
+
+                                    if ((markt_price <= sav.money && markt_mode == 1) || (markt_mode == 2 && !(sav.money + markt_price < sav.money))) {
+                                        uint8_t multiplier = 1;
+                                        if (markt_mode == 2) {
+                                            multiplier = -1;
+                                        }
+                                        if (multiplier == 1) {
+                                            sav.money -= markt_price;
+                                        } else {
+                                            sav.money += markt_price;
+                                        }
+                                        switch (markt_id) {
+                                            case 0:
+                                                sav.pots += (markt_qte*multiplier);
+                                                break;
+                                            case 1:
+                                                sav.spots += (markt_qte*multiplier);
+                                                break;
+                                            case 2:
+                                                sav.hpots += (markt_qte*multiplier);
+                                                break;
+                                            case 3:
+                                                sav.mpots += (markt_qte*multiplier);
+                                                break;
+                                            case 4:
+                                                sav.pballs += (markt_qte*multiplier);
+                                                break;
+                                            case 5:
+                                                sav.gballs += (markt_qte*multiplier);
+                                                break;
+                                            case 6:
+                                                sav.uballs += (markt_qte*multiplier);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    } else {
+                                        ShowText("Vous n'avez pas assez d'argent !");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    delay(100);
                 }
             }
         }

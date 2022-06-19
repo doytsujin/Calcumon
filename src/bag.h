@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-extern void ShowBag(SaveData* save);
+extern uint8_t ShowBag(SaveData* save);
 
 #ifdef __cplusplus
 }

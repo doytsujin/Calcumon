@@ -3,7 +3,7 @@
 #include <keypadc.h>
 #include <string.h>
 
-uint8_t _ShowText(const char* text, const uint8_t mode, const uint8_t max) { // mode 0: just print 1: bool 2: ask for num
+uint8_t _ShowText(const char* text, const uint8_t mode, const uint8_t max, const uint8_t delay_) { // mode 0: just print 1: bool 2: ask for num
 	bool can_exit;
 	bool finished;
 	finished = false; /*Override previous values in case of recall*/
@@ -97,15 +97,15 @@ uint8_t _ShowText(const char* text, const uint8_t mode, const uint8_t max) { // 
         			if (num_selection == 0) {
         				num_selection = 255;
         			}
-        			delay(10);
+        			delay(delay_);
         		}
  
         	} else if (kb_Data[7] == kb_Down) {
         		num_selection = num_selection - 1;
         		if (num_selection == 255) {
         			num_selection = 0;
-        			delay(10);
         		}
+        		delay(delay_);
         	}
         }
         if (mode == 1 && finished && (kb_Data[2] == kb_Alpha || kb_Data[5] == kb_Chs)) {
@@ -143,11 +143,13 @@ char* AskText() {
 	uint8_t cc = 0;
 	uint8_t sel = 0;
 	char to_add;
+	bool pressed = false;
+	bool pressed_2 = false;
 	kb_key_t key;
 	gfx_SetColor(5);
-	gfx_FillRectangle_NoClip(23, 23, 274, 107);
+	gfx_FillRectangle_NoClip(23, 23, 274, 136);
 	gfx_SetColor(4);
-	gfx_FillRectangle_NoClip(26, 26, 268, 101);
+	gfx_FillRectangle_NoClip(26, 26, 268, 130);
 	gfx_SetTextBGColor(0);
 	gfx_SetTextFGColor(3);
 	gfx_PrintStringXY("Entrez votre nom :", 48, 6);
@@ -160,44 +162,49 @@ char* AskText() {
 		gfx_SetTextXY(32, 32);
 		kb_Scan();
 		key = kb_Data[7];
+		pressed = false;
+		pressed_2 = true;
 		if (key == kb_Up) {
 			sel -= 16;
-			if (sel > 95) {
+			if (sel > 127) {
 				sel += 16;
 			}
 		}
-		if (key == kb_Down) {
+		else if (key == kb_Down) {
 			sel += 16;
-			if (sel > 95) {
+			if (sel > 127) {
 				sel -= 16;
 			}
 		}
-		if (key == kb_Right && !((sel + 1) % 16 == 0)) {
-			if (!(sel == 95)) {
+		else if (key == kb_Right && !((sel + 1) % 16 == 0)) {
+			if (!(sel == 127)) {
 				sel += 1;
 			}
 		}
-		if (key == kb_Left && !(sel % 16 == 0)) {
+		else if (key == kb_Left && !(sel % 16 == 0)) {
 			if (!(sel ==0)) {
 				sel -= 1;
 			}
+		} else {
+			pressed_2 = false;
 		}
 		if (kb_Data[6] == kb_Enter || kb_Data[1] == kb_2nd) {
 			if (strlen(inpt) < 9) {
-				to_add = (char)sel+32;
+				to_add = (char)sel/*+32*/;
 				strcpy(&to_add, &to_add);
 				strncat(inpt, &to_add, 1);
+				pressed = true;
 			}
 		}
 		if (kb_Data[1] == kb_Del || kb_Data[6] == kb_Clear) {
 			char* _tmptt = "\0";
 			inpt[0] = *_tmptt;
 		}
-		while (cc != 96) {
+		while (cc != 128) {
 			if (sel == cc) {
 				gfx_SetTextBGColor(1);
 			}
-			gfx_PrintChar((char)cc + 32);
+			gfx_PrintChar((char)cc/* + 32*/);
 			gfx_SetTextBGColor(4);
 			if (!(gfx_GetTextX() == 280)) {
 				gfx_PrintChar(*" ");
@@ -214,21 +221,26 @@ char* AskText() {
 		gfx_SetTextBGColor(4);
 		gfx_BlitBuffer();
 		cc = 0;
-		delay(75);
+		if (pressed) {
+			delay(150);
+		}
+		if (pressed_2) {
+			delay(75);
+		}
 	}
 	return inpt;
 }
 
 void ShowText(const char* text) {
-	_ShowText(text, 0, 0);
+	_ShowText(text, 0, 0, 0);
 }
 
 bool AskBoolText(const char* text) {
-	return ((bool)_ShowText(text, 1, 0));
+	return ((bool)_ShowText(text, 1, 0, 0));
 }
 
-uint8_t AskNumText(const char* text, const uint8_t _max) {
-	return _ShowText(text, 2, _max);
+uint8_t AskNumText(const char* text, const uint8_t _max, const uint8_t _delay) {
+	return _ShowText(text, 2, _max, _delay);
 }
 
 void InstantPrintHugeText(const char* text, const uint24_t x, const uint8_t y) {
