@@ -8,3 +8,4 @@ build.bat
 .vs/
 *.ignore
 *.bat
+src/tilemap/tilemap_backup.cs_v_back

@@ -15,6 +15,8 @@
 extern unsigned char uthon_map[];
 extern unsigned char pc_map[];
 extern unsigned char markt_map[];
+extern unsigned char route_1_map[];
+extern unsigned char dadark_cave_map[];
 
 #define TILE_WIDTH          16
 #define TILE_HEIGHT         16
@@ -24,13 +26,25 @@ extern unsigned char markt_map[];
 
 #define IS_TI               1   /*version TI = 1 CE = 0*/
 
-const uint8_t tilemaps_height[1] = {
-    34
+const uint8_t tilemaps_height[3] = {
+    34,
+    16,
+    32
 };
 
-const uint8_t tilemaps_width[1] = {
+const uint8_t tilemaps_width[3] = {
+    33,
+    70,
     33
 };
+
+unsigned char* maps[3] = {
+    uthon_map,
+    route_1_map,
+    dadark_cave_map
+};
+
+
 
 const uint8_t prices[7] = {
     2,  // pots
@@ -50,11 +64,15 @@ void change_tilemap(uint8_t map_num2, uint8_t loc, gfx_tilemap_t* tilemp, bool t
         Transition();
     }
     if (loc == 0) {
-        if (map_num2 == 0) {
-            tilemp->map = uthon_map;
-        } else {
-            gfx_End();
-        }
+        // if (map_num2 == 0) {
+        //     tilemp->map = uthon_map;
+        // } else if (map_num2 == 1) {
+        //     tilemp->map = route_1_map;
+        // } else {
+        //     gfx_End();
+        //     os_ThrowError(OS_E_INVALID);
+        // }
+        tilemp->map = maps[map_num2];
         
         tilemap_height = tilemaps_height[map_num2];
         tilemap_width = tilemaps_width[map_num2];
@@ -240,7 +258,6 @@ int main(void)
     // }
 
     /* Initialize the tilemap structure */
-
     change_tilemap(sav.map_num, sav.location, &tilemap, false);
 
     gfx_sprite_t* sprite_tile_18 = gfx_MallocSprite(16, 16);
@@ -346,6 +363,14 @@ int main(void)
                     free_control_horizontal = true;
                     is_down = true;
                     change_tilemap(sav.map_num, sav.location, &tilemap, true);
+                } else if (gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 4) == 230 && sav.map_num == 1) { // SWITCH TO DADARK_CAVE
+                    x = 0;
+                    y = 0;
+                    y_offset = 0;
+                    is_right = false;
+                    sav.map_num = 2;
+                    x_offset = 0;
+                    change_tilemap(2/* = uthon*/, 0/* = outisde*/, &tilemap, true);
                 }
             } else if (direction == 1/*down*/) {
                 if (gfx_GetTile(&tilemap, x + 8, y + 8) == 138 || gfx_GetTile(&tilemap, x + 8, y + 8) == 139) {  // POKEMON CENTER INDOORS
@@ -488,6 +513,26 @@ int main(void)
                     delay(100);
                 }
             }
+        }
+
+        if (x > 299 && sav.map_num == 0) {  // SWITCH TO ROUTE 1
+            x = 6;
+            y = 184;
+            is_right = false;
+            sav.map_num = 1;
+            x_offset = 0;
+            y_offset = 0;
+            change_tilemap(1/* = route 1*/, 0/* = outisde*/, &tilemap, true);
+        }
+
+        if (x < 6 && sav.map_num == 1) {  // SWITCH TO UTHON
+            x = 299;
+            y = 112;
+            y_offset = 165;
+            is_right = true;
+            sav.map_num = 0;
+            x_offset = 194;
+            change_tilemap(0/* = uthon*/, 0/* = outisde*/, &tilemap, true);
         }
         
 
@@ -712,6 +757,9 @@ int main(void)
             if (x > 304) {
                 x -= to_walk;
             }
+            if (x > 16777200) {
+                x = 0;
+            }
             if (x < 0) {
                 x += to_walk;
             }
@@ -725,6 +773,14 @@ int main(void)
                 y = 0;
             }
         }
+        gfx_SetTextXY(0, 0);
+        gfx_PrintUInt(x_offset, 6);
+        gfx_SetTextXY(0, 8);
+        gfx_PrintUInt(x, 6);
+        gfx_SetTextXY(0, 16);
+        gfx_PrintUInt(y_offset, 6);
+        gfx_SetTextXY(0, 24);
+        gfx_PrintUInt(y, 6);
         gfx_SwapDraw();
         
     } while (kb_Data[1] != kb_Del && kb_Data[6] != kb_Clear && !(instant_exit));
