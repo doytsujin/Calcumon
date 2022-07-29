@@ -13,8 +13,12 @@ void UpColor(uint8_t* color) {
 	*color += 1;
 }
 
-bool ShowMainMenu(SaveData* _save, gfx_tilemap_t* tilmap, unsigned int* _x, unsigned int* _y, uint8_t selec, uint8_t prev_selec, bool back, bool back2) {
-	gfx_Tilemap(tilmap, *_x, *_y);
+bool ShowMainMenu(SaveData* _save, gfx_tilemap_t* tilmap, unsigned int* _x, unsigned int* _y, uint8_t selec, uint8_t prev_selec, bool back, bool back2, bool show_bg) {
+	if (show_bg) {
+		gfx_Tilemap(tilmap, *_x, *_y);
+	} else {
+		gfx_FillScreen(3);
+	}
 	gfx_SetTextFGColor(3);
 	gfx_SetTextBGColor(4);
 	gfx_SetColor(5);
@@ -116,7 +120,7 @@ bool ShowMainMenu(SaveData* _save, gfx_tilemap_t* tilmap, unsigned int* _x, unsi
 					break;
 				case 1:  // BAG
 					ShowBag(_save);
-					exit = ShowMainMenu(_save, tilmap, _x, _y, selec, prev_selec, back, back2);
+					exit = ShowMainMenu(_save, tilmap, _x, _y, selec, prev_selec, back, back2, show_bg);
 					quit = true;
 					break;
 				case 2:  // COMMS
@@ -127,7 +131,7 @@ bool ShowMainMenu(SaveData* _save, gfx_tilemap_t* tilmap, unsigned int* _x, unsi
 					save(_save);
 					ShowText("Partie Sauvegardee !");
 					delay(200);
-					exit = ShowMainMenu(_save, tilmap, _x, _y, selec, prev_selec, back, back2);
+					exit = ShowMainMenu(_save, tilmap, _x, _y, selec, prev_selec, back, back2, show_bg);
 					quit = true;
 					break;
 				case 5:  // EXIT

@@ -60,10 +60,10 @@ uint8_t ShowBag(SaveData* save) {
 			} else {
 				item_icon = balls_tileset_tiles[ind - 4];
 			}
-			gfx_TransparentSprite_NoClip(item_icon, 44, 39 + (25*drw_selection));
+			gfx_TransparentSprite_NoClip(item_icon, 44, 39 + (26*drw_selection));
 			gfx_SetTextBGColor(_col);
-			gfx_PrintStringXY(items_name[ind], 67, 46 + (25*drw_selection));
-			gfx_PrintStringXY("x", 260, 46 + (25*drw_selection));
+			gfx_PrintStringXY(items_name[ind], 67, 46 + (26*drw_selection));
+			gfx_PrintStringXY("x", 260, 46 + (26*drw_selection));
 			gfx_PrintUInt(tmp_inv[ind], 3);
 			drw_selection++;
 			if (_col == 11) {

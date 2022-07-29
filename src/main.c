@@ -17,6 +17,8 @@ extern unsigned char pc_map[];
 extern unsigned char markt_map[];
 extern unsigned char route_1_map[];
 extern unsigned char dadark_cave_map[];
+extern unsigned char route_2_map[];
+extern unsigned char ochor_by_the_sea_map[];
 
 #define TILE_WIDTH          16
 #define TILE_HEIGHT         16
@@ -25,24 +27,30 @@ extern unsigned char dadark_cave_map[];
 #define TILEMAP_DRAW_HEIGHT 16
 
 #define IS_TI               1   /*version TI = 1 CE = 0*/
-#define ENABLE_DEBUG        false /*enable printing tilemap and player coords*/
+#define ENABLE_DEBUG        true /*enable printing tilemap and player coords*/
 
-const uint8_t tilemaps_height[3] = {
+const uint8_t tilemaps_height[5] = {
     34,
     16,
-    32
+    32,
+    49,
+    34
 };
 
-const uint8_t tilemaps_width[3] = {
+const uint8_t tilemaps_width[5] = {
     33,
     70,
+    33,
+    21,
     33
 };
 
-unsigned char* maps[3] = {
+unsigned char* maps[5] = {
     uthon_map,
     route_1_map,
-    dadark_cave_map
+    dadark_cave_map,
+    route_2_map,
+    ochor_by_the_sea_map
 };
 
 
@@ -312,7 +320,7 @@ int main(void)
         kb_Scan();
 
         if (kb_Data[3] == kb_GraphVar) {
-            instant_exit = ShowMainMenu(&sav, &tilemap, &x_offset, &y_offset, 0, 1, false, false);
+            instant_exit = ShowMainMenu(&sav, &tilemap, &x_offset, &y_offset, 0, 1, false, false, sav.location == 2 ? true : false);
             delay(200);
         }
 
@@ -374,7 +382,16 @@ int main(void)
                     is_down = true;
                     sav.map_num = 2;
                     x_offset = 0;
-                    change_tilemap(2/* = uthon*/, 0/* = outisde*/, &tilemap, true);
+                    change_tilemap(2/* = dadark cave*/, 0/* = outisde*/, &tilemap, true);
+                } else if (gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 4) == 230 && sav.map_num == 3) { // SWITCH TO DADARK_CAVE
+                    x = 230;
+                    y = 16;
+                    y_offset = 0;
+                    is_right = true;
+                    is_down = false;
+                    sav.map_num = 2;
+                    x_offset = 194;
+                    change_tilemap(2/* = dadark cave*/, 0/* = outisde*/, &tilemap, true);
                 }
             } else if (direction == 1/*down*/) {
                 if (gfx_GetTile(&tilemap, x + 8, y + 8) == 138 || gfx_GetTile(&tilemap, x + 8, y + 8) == 139) {  // POKEMON CENTER INDOORS
@@ -547,6 +564,17 @@ int main(void)
             sav.map_num = 0;
             x_offset = 194;
             change_tilemap(0/* = uthon*/, 0/* = outisde*/, &tilemap, true);
+        }
+
+        if (y < 3 && x > 223 && x < 239 && sav.map_num == 2) {  // SWITCH TO ROUTE 2 <- DADARK CAVE
+            x = 32;
+            y = 222;
+            y_offset = 528;
+            is_right = false;
+            is_down = true;
+            sav.map_num = 3;
+            x_offset = 0;
+            change_tilemap(3/* = route 2*/, 0/* = outisde*/, &tilemap, true);
         }
         
 
