@@ -320,7 +320,7 @@ int main(void)
         kb_Scan();
 
         if (kb_Data[3] == kb_GraphVar) {
-            instant_exit = ShowMainMenu(&sav, &tilemap, &x_offset, &y_offset, 0, 1, false, false, sav.location == 2 ? true : false);
+            instant_exit = ShowMainMenu(&sav, &tilemap, &x_offset, &y_offset, 0, 1, false, false, sav.map_num == 2 ? false : true);
             delay(200);
         }
 
@@ -373,6 +373,9 @@ int main(void)
                     free_control_vertical = true;
                     free_control_horizontal = true;
                     is_down = true;
+                    if (sav.map_num == 4) {
+                        is_right = false;
+                    }
                     change_tilemap(sav.map_num, sav.location, &tilemap, true);
                 } else if (gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 4) == 230 && sav.map_num == 1) { // SWITCH TO DADARK_CAVE
                     x = 40;
@@ -401,8 +404,14 @@ int main(void)
                     if (sav.map_num == 0) {
                         x_offset = 168;
                         y_offset = 112;
+                        free_control_horizontal = false;
+                    } else if (sav.map_num == 4) {
+                        x_offset = 192;
+                        y_offset = 92;
+                        x = 224;
+                        free_control_horizontal = true;
+                        is_right = true;
                     }
-                    free_control_horizontal = false;
                     free_control_vertical = false;
                     change_tilemap(sav.map_num, sav.location, &tilemap, true);
                 } else if (gfx_GetTile(&tilemap, x + 8, y + 8) == 181 || gfx_GetTile(&tilemap, x + 8, y + 8) == 182) {  // MARKET INDOORS
@@ -412,8 +421,14 @@ int main(void)
                     if (sav.map_num == 0) {
                         x_offset = 8;
                         y_offset = 268;
+                        free_control_horizontal = false;
+                    } else if (sav.map_num == 4) {
+                        x_offset = 192;
+                        y_offset = 92;
+                        x = 160;
+                        free_control_horizontal = true;
+                        is_right = true;
                     }
-                    free_control_horizontal = false;
                     free_control_vertical = false;
                     change_tilemap(sav.map_num, sav.location, &tilemap, true);
                 }
@@ -535,48 +550,74 @@ int main(void)
                 }
             }
         }
-
-        if (x > 299 && sav.map_num == 0) {  // SWITCH TO ROUTE 1 <- UTHON
-            x = 6;
-            y = 184;
-            is_right = false;
-            sav.map_num = 1;
-            x_offset = 0;
-            y_offset = 0;
+        uint8_t tmp_num = sav.map_num;
+        if (tmp_num == 0) {
+            if (x > 299) {  // SWITCH TO ROUTE 1 <- UTHON
+                x = 6;
+                y = 184;
+                is_right = false;
+                sav.map_num = 1;
+                x_offset = 0;
+                y_offset = 0;
+                change_tilemap(1/* = route 1*/, 0/* = outisde*/, &tilemap, true);
+            }
+        }
+        if (tmp_num == 1) {
+            if (x < 6) {  // SWITCH TO UTHON <- ROUTE 1
+                x = 299;
+                y = 112;
+                y_offset = 165;
+                is_right = true;
+                sav.map_num = 0;
+                x_offset = 194;
+                change_tilemap(0/* = uthon*/, 0/* = outisde*/, &tilemap, true);
+            }
+        }
+        if (tmp_num == 2) {
+            if (x > 31 && x < 47 && y > 219) {  // SWITCH TO ROUTE 1 <- DADARK CAVE
+                x = 240;
+                y = 28;
+                is_right = true;
+                is_down = false;
+                sav.map_num = 1;
+                x_offset = 784;
+                y_offset = 0;
             change_tilemap(1/* = route 1*/, 0/* = outisde*/, &tilemap, true);
+            }
+    
+            if (y < 3 && x > 223 && x < 239) {  // SWITCH TO ROUTE 2 <- DADARK CAVE
+                x = 32;
+                y = 222;
+                y_offset = 528;
+                is_right = false;
+                is_down = true;
+                sav.map_num = 3;
+                x_offset = 0;
+                change_tilemap(3/* = route 2*/, 0/* = outisde*/, &tilemap, true);
+            }
         }
-        if (x > 31 && x < 47 && y > 219 && sav.map_num == 2) {  // SWITCH TO ROUTE 1 <- DADARK CAVE
-            x = 240;
-            y = 28;
-            is_right = true;
-            is_down = false;
-            sav.map_num = 1;
-            x_offset = 784;
-            y_offset = 0;
-            change_tilemap(1/* = route 1*/, 0/* = outisde*/, &tilemap, true);
+        if (tmp_num == 3) {
+            if (y < 3 && x > 143 && x < 161) {  // SWITCH TO OCHOR BY THE SEA <- ROUTE 2
+                x = 152;
+                y = 206;
+                y_offset = 290;
+                is_down = true;
+                sav.map_num = 4;
+                x_offset = 160;
+                change_tilemap(4/* = ochor by the sea*/, 0/* = outisde*/, &tilemap, true);
+            }
         }
-
-        if (x < 6 && sav.map_num == 1) {  // SWITCH TO UTHON <- ROUTE 1
-            x = 299;
-            y = 112;
-            y_offset = 165;
-            is_right = true;
-            sav.map_num = 0;
-            x_offset = 194;
-            change_tilemap(0/* = uthon*/, 0/* = outisde*/, &tilemap, true);
+        if (tmp_num == 4) {
+            if (y > 219 && x > 151 && x < 169) {  // SWITCH TO ROUTE 2 <- OCHOR BY THE SEA
+                x = 152;
+                y = 24;
+                y_offset = 0;
+                is_down = false;
+                sav.map_num = 3;
+                x_offset = 0;
+                change_tilemap(3/* = route 2*/, 0/* = outisde*/, &tilemap, true);
+            }
         }
-
-        if (y < 3 && x > 223 && x < 239 && sav.map_num == 2) {  // SWITCH TO ROUTE 2 <- DADARK CAVE
-            x = 32;
-            y = 222;
-            y_offset = 528;
-            is_right = false;
-            is_down = true;
-            sav.map_num = 3;
-            x_offset = 0;
-            change_tilemap(3/* = route 2*/, 0/* = outisde*/, &tilemap, true);
-        }
-        
 
         if (moved) {
             tme++;
@@ -682,7 +723,7 @@ int main(void)
                 moved = true;
                 tmp_get_tile = gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 18);
                 if (free_control_vertical) {
-                    if (!(can_collide[tmp_get_tile]) && !(tmp_get_tile == 33)) {
+                    if (!(can_collide[tmp_get_tile]) && !(tmp_get_tile == 33 || tmp_get_tile == 118)) {
                         y += to_walk;
                     }
                     if (y >= 112 && !(is_down)) {
@@ -693,13 +734,13 @@ int main(void)
                 else if (y_offset < (tilemap_height * TILE_HEIGHT) - (TILEMAP_DRAW_HEIGHT * TILE_HEIGHT))
                 {
                     free_control_vertical = false;
-                    if (!(can_collide[tmp_get_tile]) && !(tmp_get_tile == 33)) {
+                    if (!(can_collide[tmp_get_tile]) && !(tmp_get_tile == 33 || tmp_get_tile == 118)) {
                         y_offset += to_walk; 
                     }
                 } else {
                     free_control_vertical = true;
                     is_down = true;
-                    if (!(can_collide[tmp_get_tile]) && !(tmp_get_tile == 33)) {
+                    if (!(can_collide[tmp_get_tile]) && !(tmp_get_tile == 33 || tmp_get_tile == 118)) {
                         y += to_walk;
                     }
                 }
@@ -766,7 +807,7 @@ int main(void)
                 tmp_get_tile = gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 4);
                 tmp_get_tile_2 = gfx_GetTile(&tilemap, x_offset + x + 8, y_offset + y + 15);
                 if (free_control_vertical) {
-                    if (!(can_collide[tmp_get_tile]) && !(tmp_get_tile_2 == 33)) {
+                    if (!(can_collide[tmp_get_tile]) && !(tmp_get_tile_2 == 33 || tmp_get_tile_2 == 118)) {
                         y -= to_walk;
                     }
                     if (y <= 112 && is_down) {
@@ -777,13 +818,13 @@ int main(void)
                 }
                 else if (y_offset) // = (y_offset == 0)
                 {
-                    if (!(can_collide[tmp_get_tile]) && !(tmp_get_tile_2 == 33)) {
+                    if (!(can_collide[tmp_get_tile]) && !(tmp_get_tile_2 == 33 || tmp_get_tile_2 == 118)) {
                         y_offset -= to_walk;
                     }
                 } else {
                     free_control_vertical = true;
                     is_down = false;
-                    if (!(can_collide[tmp_get_tile]) && !(tmp_get_tile_2 == 33)) {
+                    if (!(can_collide[tmp_get_tile]) && !(tmp_get_tile_2 == 33 || tmp_get_tile_2 == 118)) {
                         y -= to_walk;
                     }
 
