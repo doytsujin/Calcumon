@@ -1,11 +1,9 @@
 bin/
 obj/
-build.bat
 *.lnk
 *.tmx
 *.csv_back
 *.tsx
 .vs/
 *.ignore
-*.bat
 src/tilemap/tilemap_backup.cs_v_back
