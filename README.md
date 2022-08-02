@@ -7,7 +7,7 @@ In development. You can try to build it yourself.
 ## Compatible Calculators
 Calcumon WILL work on these calculators :  
 - [TI 84 Plus CE](https://en.wikipedia.org/wiki/TI-84_Plus_series#TI-84_Plus_CE_and_TI-84_Plus_CE-T)  
-- [TI 84 PLUS C Silver Edition](https://en.wikipedia.org/wiki/TI-84_Plus_series#TI-84_Plus_C_Silver_Edition)  
+- ~~[TI 84 PLUS C Silver Edition](https://en.wikipedia.org/wiki/TI-84_Plus_series#TI-84_Plus_C_Silver_Edition)~~  
 - [TI 83 Premium CE](https://en.wikipedia.org/wiki/TI-83_Premium_CE)  
 - [TI 83 Premium CE (Python Edition)](https://en.wikipedia.org/wiki/TI-83_Premium_CE#Programming)  
 - It is possible CALCUMON works on other calculators.  
